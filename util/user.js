@@ -1,8 +1,20 @@
 const DBUtil = require('./DBUtil');
-DBUtil.query('select * from VD_STATES', (err, recordsets) => {
 
-  console.log(recordsets);
 
-  // Handle recordsets logic
 
-});
+
+
+exports.authenticate = (callback, userDetails) =>{
+	var query = "select a.USER_ID, a.Name, a.EMAILADRESS, a.MOBILE from VD_USER_PROFILE as a inner join USER_PASSWORD as b on a.USER_ID = b.USER_ID and b.PASSWORD = '" + userDetails.password + "' and a.MOBILE='" + userDetails.mobile + "'";
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+
+	});
+
+};
