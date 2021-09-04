@@ -1,34 +1,128 @@
+const multer = require('multer');
+
+const uploads = multer({ dest: "public/files" })
+const fileUpload = require('express-fileupload');
+
 const express = require('express')
+
 const app = express()
 const port = 3000
+var bodyParser     =         require("body-parser");
+
+
+const shopDetail = require('./util/ShopController');
+const user = require('./util//User');
+const product = require('./util//Product');
+
+var AWS = require('aws-sdk');
+AWS.config.update({
+        accessKeyId: "AKIAV3KNKFMUZMWVRMCF", // Access key ID
+        secretAccesskey: "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", // Secret access key
+        region: "ap-south-1" //Region
+})
+
+
+
+const DBUtil = require('./util/connectionEstablish');
+    DBUtil.healthCheck((i)=>{
+        if(i != 'OK') {
+            console.log("closing server. DB Connection Failed");
+            server.close();
+        }
+    }
+);
+    app.use(fileUpload());
+
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-const sql = require('mssql')
-
-function myFunc() {
-
-
-
-  async () => {
-    try {
-      console.dir("s");
-      // make sure that any items are correctly URL encoded in the connection string
-      await sql.connect('Server=vevodus1.cvpftxp1yk7h.ap-south-1.rds.amazonaws.com,1433;Database=vevodus;User Id=admin;Password=Password;Encrypt=true')
-      const result = await sql.query `select * from VD_STATES`
-      console.dir(result)
-    } catch (err) {
-      console.dir(err);
-      // ... error checks
+app.get('/api/v1/shop/getdetails', (req, res) =>{
+    var userID = req.query['userid'];
+    if(userID == null) {
+        res.send("Missing user id.");
     }
+    else {
+        shopDetail.getShopDetails((i) =>{
+            res.send(i);
+        }, userID)
 
-  }
-}
+    }
+});
+
+app.get('/api/v1/product/getProducts' , (req,res) =>{
+    
+    var userID = req.query['shopid'];
+    if(userID == null) {
+        res.send("Missing shopid id.");
+    }
+    else {
+        product.getProducts((i) =>{
+            res.send(i);
+        }, userID)
+
+    }
+})
 
 
-app.listen(port, () => {
-  myFunc();
-  console.log(`Example app listening at http://localhost:${port}`)
+////////// USER API
+
+app.post('/api/v1/user/validate', (req, res) =>{
+    var userDetails = {
+        mobile : req.body.mobile,
+        password : req.body.password
+    }
+    user.authenticate((i) =>{
+        res.send(i);
+    }, userDetails);
+});
+
+///////// USER API END
+
+app.post('/api/v1/product/add', (req, res) =>{
+    var userDetails = {
+        mobile : req.body.mobile,
+        password : req.body.password
+    }
+    product.addProducts((i) =>{
+        res.send(i);
+    }, userDetails);
+});
+
+app.post('/upload' , (req, res) =>{
+    console.log(req.files)
+    const s3 = new AWS.S3();
+
+    // Binary data base64
+    const fileContent  = Buffer.from(req.files.uploadFileName.data, 'binary');
+
+    // Setting up S3 upload parameters
+    const params = {
+        Bucket: 'vevodusbucket',
+        Key: "phase2.png", // File name you want to save as in S3
+        Body: fileContent 
+    };
+
+    // Uploading files to the bucket
+    s3.upload(params, function(err, data) {
+        if (err) {
+            throw err;
+        }
+        res.send({
+            "response_code": 200,
+            "response_message": "Success",
+            "response_data": data
+        });
+    });
+})
+
+
+
+
+var server = app.listen(port, () => {
+ console.log(`Example app listening at http://localhost:${port}`)
 })
