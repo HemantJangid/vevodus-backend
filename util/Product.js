@@ -34,4 +34,28 @@ exports.getProducts = (callback, shopID) =>{
 
 };
 
+exports.changeStatusProduct = (callback, productAttr) =>{
+	var query = "UPDATE VD_PRODUCT SET VERIFIED = "+ productAttr.isverified + " WHERE PRODUCT_ID in (" + productAttr.productids +")";
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback("OK");
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+	});
+}
 
+exports.changeLiveStatusProduct = (callback, productAttr) =>{
+	var query = "UPDATE VD_PRODUCT SET IS_LIVE = "+ productAttr.isverified + " WHERE PRODUCT_ID in (" + productAttr.productids +")";
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback("OK");
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+	});
+}
