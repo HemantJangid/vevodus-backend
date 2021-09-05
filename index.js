@@ -25,6 +25,13 @@ AWS.config.update({
         region: "ap-south-1" //Region
 })
 
+const s3Client = new AWS.S3({
+    accessKeyId: 'AKIAV3KNKFMUZMWVRMCF',
+    secretAccessKey: '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',
+    region :'ap-south-1'
+});
+
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
@@ -32,7 +39,7 @@ app.get('/', (req, res) => {
 
 
 const DBUtil = require('./util/connectionEstablish');
-    DBUtil.healthCheck((i)=>{
+DBUtil.healthCheck((i)=>{
         if(i != 'OK') {
             console.log("closing server. DB Connection Failed");
             server.close();
@@ -68,6 +75,13 @@ app.post('/api/v1/shop/statusChanged', (req, res) => {
     shopDetail.changeStatusShop((i) =>{
             res.send(i);
     }, shopAttrs);
+});
+
+app.get('/api/v1/shop/getPhotosLink', (req, res) =>{
+    let productid = req.query.shopid;
+    shopDetail.getPhotosLink((i) =>{
+        res.send(i);
+    }, productid);
 });
 
 app.get('/api/v1/product/getProducts' , (req,res) =>{
@@ -151,19 +165,63 @@ app.post('/api/v1/user/validate', (req, res) =>{
 
 ///////// USER API END
 
-app.post('/api/v1/product/add', (req, res) =>{
-    var userDetails = {
-        mobile : req.body.mobile,
-        password : req.body.password
-    }
-    product.addProducts((i) =>{
+app.get('/api/v1/product/getPhotosLink', (req, res) =>{
+    let productid = req.query.productid;
+    product.getPhotosLink((i) =>{
         res.send(i);
-    }, userDetails);
+    }, productid);
 });
 
-app.get('/api/v1/getAllCatogries', (req, res) =>{
-    categories.getBroaderCategory((i) =>{
+
+app.get('/api/v1/product/getProductAttrs', (req, res) =>{
+    let productid = req.query.productid;
+    product.getProductAttrs((i) =>{
         res.send(i);
+    }, productid);
+});
+
+app.post('/api/v1/product/add', (req, res) =>{
+    let shopID = req.body.shopid;
+    if(shopID != null) {
+        let categoryID = req.body.categoryid;
+        let brandID = req.body.brandid;
+        if(brandID == null) {
+            // create new brand ID.
+
+
+        }
+        else if(categoryID == null) {
+            // create new category ID.
+        }
+
+    }
+    else{
+        res.status(201);
+        res.send("Missing Shop ID.");
+    }
+});
+
+app.post('/api/v1/product/changeQuantity', (req, res) =>{
+    var productAttrs = {
+        quantity : req.body.quantity,
+        productid : req.body.productid
+    }
+    product.changeQuantity((i) =>{
+        res.send(i);
+    }, productAttrs);
+});
+
+
+
+app.get('/api/v1/getAllCatogriesaAndBrands', (req, res) =>{
+    categories.getBroaderCategory((i) =>{
+        categories.getAllBrands((ii) =>{
+            let response = {};
+            response['categories'] = i;
+            response['brands'] = ii;
+            res.send(response);
+        });
+        
     });
 });
 
@@ -193,11 +251,12 @@ app.post('/upload' , (req, res) =>{
     const params = {
         Bucket: 'vevodusbucket',
         Key: "phase2.png", // File name you want to save as in S3
-        Body: fileContent 
+        Body: fileContent,
+        ACL:'public-read'
     };
 
     // Uploading files to the bucket
-    s3.upload(params, function(err, data) {
+    s3Client.upload(params, function(err, data) {
         if (err) {
             throw err;
         }
@@ -208,7 +267,6 @@ app.post('/upload' , (req, res) =>{
         });
     });
 })
-
 
 
 
