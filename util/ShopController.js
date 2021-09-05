@@ -2,7 +2,7 @@ const DBUtil = require('./DBUtil');
 
 exports.getShopDetails = (callback, userID) =>{
 	console.log(userID + "checking");
-	var query =  'select shop.SHOP_ID, shop.NAME, shop.LAT, shop.lang, shop.ADRESS, shop.LOCATION_ID, shop.BROADER_CATEGORY, shop.GST, shop.VERIFIED from VD_SHOP as shop inner join VD_SHOP_OWNER as sowner on  sowner.USER_ID =' + userID;
+	var query =  'select shop.SHOP_ID, shop.NAME, shop.LAT, shop.lang, shop.ADRESS, shop.LOCATION_ID, shop.BROADER_CATEGORY, shop.GST, shop.VERIFIED, shop.PHOTO_LINK from VD_SHOP as shop inner join VD_SHOP_OWNER as sowner on  sowner.USER_ID =' + userID;
 	DBUtil.query(query, (err, recordsets) => {
 	if(err == null) {
 			callback(recordsets['recordset']);
@@ -41,4 +41,20 @@ exports.changeStatusShop = (callback, shopAttr) =>{
 		}
 	});
 }
+
+exports.getPhotosLink = (callback, productid) =>{
+	var query = "select * from SHOP_PHOTO where SHOP_ID = " + productid;
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+
+	});
+
+};
+
 
