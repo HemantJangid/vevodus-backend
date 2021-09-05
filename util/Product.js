@@ -59,3 +59,47 @@ exports.changeLiveStatusProduct = (callback, productAttr) =>{
 		}
 	});
 }
+
+exports.changeQuantity = (callback, quantity) =>{
+	var query = "update VD_PRODUCT set quantity = " + productAttr.quantity + "where product_id= " + productAttr.productid;
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback("OK");
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+	});
+}
+
+exports.getPhotosLink = (callback, productid) =>{
+	var query = "select * from VD_PRODUCT_PHOTO where product_id = " + productid;
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+
+	});
+
+};
+
+exports.getProductAttrs = (callback, productid) =>{
+	var query = "select * from VD_PRODCUT_ATTRIBUTES where product_id =  " + productid;
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+
+	});
+
+};
+
