@@ -31,16 +31,22 @@ exports.getAllBrands = (callback) =>{
 
 };
 
-exports.createNewBrand = (callback) => {
-	var query = "select * from VD_BRAND";
+
+exports.addNewCategory = (callback, categoryAttrs) =>{
+	let query = " INSERT INTO VD_CATEGORY (CATEGORY_NAME, SUB_CATEGORY, VERTICAL) VALUES ('" + categoryAttrs.categoryName+ "', '" + categoryAttrs.subCategory+ "' , '" + categoryAttrs.vertical+ "');  SELECT SCOPE_IDENTITY() as primaryKey;";
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
-				callback(recordsets['recordset']);
+			if(recordsets['recordset'] != null) {
+				callback(recordsets['recordset'][0]['primaryKey']);
+			}
+			else{
+				callback(null);
+			}
+			
 		}
 		else{
-			callback("Internal Server Error");
+			callback(null);
 			console.log("Internl server error" + err);
 		}
-
 	});
 };
