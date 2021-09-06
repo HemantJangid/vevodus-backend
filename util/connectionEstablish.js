@@ -21,4 +21,11 @@ exports.healthCheck = (callback) =>{
 
 });
 }
+
+// Fetch data example using callback
+exports.syncDBQuery = () => {
+  let result = DBUtil.syncDBQuery();//connPoolPromise.request().query('SELECT NOW()');
+  // return result;
+
+};
 //}
