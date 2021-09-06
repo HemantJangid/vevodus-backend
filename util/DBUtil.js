@@ -15,6 +15,7 @@ const dbConfig = {
   }
 }
 
+let umesh = null;
 const getConnPoolPromise = () => {
   if (connPoolPromise) return connPoolPromise;
 
@@ -38,7 +39,8 @@ const getConnPoolPromise = () => {
 
 // Fetch data example using callback
 exports.query = (sqlQuery, callback) => {
-  getConnPoolPromise().then(connPool => {
+   getConnPoolPromise().then(connPool => {
+    umesh = connPool;
     return connPool.request().query(sqlQuery);
   }).then(result => {
     callback(null, result);
@@ -46,4 +48,13 @@ exports.query = (sqlQuery, callback) => {
     callback(err);
   });
 
+};
+
+
+
+// Fetch data example using callback
+exports.syncDBQuery = () => {
+  let result = await umesh.request().query('select * from VD_BRAND');
+   console.log(result)
+   return result;
 };
