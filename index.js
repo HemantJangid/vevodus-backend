@@ -9,6 +9,7 @@ var bodyParser  = require("body-parser");
 
 const shopDetail = require('./util/ShopController');
 const user = require('./util/User');
+const brand = require('./util/Brand');
 const product = require('./util/Product');
 const categories = require('./util/Category');
 
@@ -187,10 +188,122 @@ app.post('/api/v1/product/add', (req, res) =>{
         let brandID = req.body.brandid;
         if(brandID == null) {
             // create new brand ID.
+            let otherBrandName = req.body.brandname;
+            brand.addNewBrand((i) =>{
+                if(i != null){
+                    brandID = i;
+                    if(categoryID == null) {
+                        let categoryAttrs = {};
+                        categoryAttrs['categoryName'] = req.body.categoryname;
+                        categoryAttrs['subCategory'] = req.body.subcategory;
+                        categoryAttrs['vertical'] = req.body.vertical;
+                        categories.addNewCategory((categoriesResponse) =>{
+                            if(categoriesResponse != null) {
+                                categoryID = categoriesResponse;
+                                let productAttrs = {};
+                                productAttrs['productName'] = req.body.productname;
+                                productAttrs['MRP'] = req.body.mrp;
+                                productAttrs['SP'] = req.body.sp;
+                                productAttrs['categoryID'] = categoryID;
+                                productAttrs['quantity'] = req.body.quantity;
+                                productAttrs['brandID'] = brandID;
+                                productAttrs['productSpecification'] = req.body.productdesc;
+                                productAttrs['returnPolicy'] = req.body.returnpolicy;
+                                productAttrs['verified'] = 0;
+                                productAttrs['islive'] = 0;
+                                product.addProducts((productResponse) =>{
+                                    if(productResponse != null) {
+                                        res.send("Success with productID: " + productResponse);
+                                        product.addProductMappedToShop((mappedResponse) =>{
 
+                                        }, {"productid" : productID , "brandID" : brandID, "shopID" : shopID})
+
+                                        let productRequrestAttrs = {};
+                                        productRequrestAttrs['key'] = request.body.productspecificationkey;
+                                        productRequrestAttrs['value'] = request.body.productspecificationvalue;
+                                        if(request.body.productspecificationkey != null) {
+                                            let arrayProductSpecificationKey = productRequrestAttrs['key'].split(',');
+                                            let arrayProductSpecificationValue = productRequrestAttrs['value'].split(',');
+                                            for(let k = 0 ; k <arrayProductSpecificationKey.length ; k ++) {
+                                                product.addProductSpecifications((productSpecResponse) => {
+                                                    console.log(productID + "response for adding Product Attrs: " + productResponse);
+                                                }, productID, arrayProductSpecificationKey[k], arrayProductSpecificationValue[k]);
+                                            }
+                                        }
+
+
+
+                                        // adding photors block
+
+                                            let photoLength = request.body.photolength;
+                                            for(let photoIte = 0; photoIte < photolength ; photoIte++) {
+                                                let photoKeyReq = "photo" + i;
+                                                let photoFileName = request.body[photoKeyReq].name + Math.floor(+new Date() / 1000);
+                                                const s3 = new AWS.S3();
+
+                                                // Binary data base64
+                                                
+                                                let fileContent  = Buffer.from(req.files[photoKeyReq].data, 'binary');
+
+                                                // Setting up S3 upload parameters
+                                                const params = {
+                                                    Bucket: 'vevodusbucket',
+                                                    Key: photoFileName, // File name you want to save as in S3
+                                                    Body: fileContent,
+                                                    ACL:'public-read'
+                                                };
+
+                                                // Uploading files to the bucket
+                                                s3Client.upload(params, function(err, data) {
+                                                    if (err) {
+                                                        throw err;
+                                                    }
+                                                    product.addProductPhoto((photoRes) =>{
+                                                        console.log("Consoling Add Photo Links Response" + photoRes);
+                                                        if( photoIte == 0) {
+                                                            // update the PRODUCT table with default link.
+                                                            product.updateDefaultPhotoLink((defaultLinkRes)=>{
+                                                                console.log("Updating default Link. =" + defaultLinkRes);
+                                                            }, productID,data.Location);
+                                                        }
+                                                    }, productID, data.Location, 0);
+                                                   
+                                                });
+                                            }
+
+
+                                        // end block
+
+                                    }
+                                    else {
+                                        res.status(201);
+                                        res.send("Product related internal server error." + productResponse);
+                                    }
+                                }, productAttrs);
+
+                            }
+                            else{
+                                res.status(201);
+                                res.send("Categories related internal server error." + i);
+                            }
+                        }, categoryAttrs);
+
+                    }
+                    else {
+
+
+
+
+                    }
+                }
+                else {
+                    res.status(201);
+                    res.send("Brand related internal server error." + i);
+                }
+            }, otherBrandName);
 
         }
-        else if(categoryID == null) {
+        else {
             // create new category ID.
         }
 
@@ -236,7 +349,9 @@ app.get('/api/v1/getAllCatogriesaAndBrands', (req, res) =>{
 
 
 
-
+app.post('/upload1' , (req, res) =>{
+    console.log(req.files)
+});
 
 
 
@@ -266,6 +381,12 @@ app.post('/upload' , (req, res) =>{
             "response_data": data
         });
     });
+})
+
+app.get('/synccall', (req,res) =>{
+    console.log(DBUtil);
+    let result = DBUtil.syncDBQuery();
+    res.send(result);
 })
 
 
