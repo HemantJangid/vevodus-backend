@@ -50,3 +50,8 @@ exports.addNewCategory = (callback, categoryAttrs) =>{
 		}
 	});
 };
+
+exports.addNewCategoryv2 = (categoryAttrs) =>{
+	let query = " INSERT INTO VD_CATEGORY (CATEGORY_NAME, SUB_CATEGORY, VERTICAL) VALUES ('" + categoryAttrs.categoryName+ "', '" + categoryAttrs.subCategory+ "' , '" + categoryAttrs.vertical+ "');  SELECT SCOPE_IDENTITY() as primaryKey;";
+	return query;
+}
