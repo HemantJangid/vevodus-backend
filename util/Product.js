@@ -71,7 +71,7 @@ exports.changeLiveStatusProduct = (callback, productAttr) =>{
 	});
 }
 
-exports.changeQuantity = (callback, quantity) =>{
+exports.changeQuantity = (callback, productAttr) =>{
 	var query = "update VD_PRODUCT set quantity = " + productAttr.quantity + "where product_id= " + productAttr.productid;
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
