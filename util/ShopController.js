@@ -2,7 +2,7 @@ const DBUtil = require('./DBUtil');
 
 exports.getShopDetails = (callback, userID) =>{
 	console.log(userID + "checking");
-	var query =  'select shop.SHOP_ID, shop.NAME, shop.LAT, shop.lang, shop.ADRESS, shop.LOCATION_ID, shop.BROADER_CATEGORY, shop.GST, shop.VERIFIED, shop.PHOTO_LINK from VD_SHOP as shop inner join VD_SHOP_OWNER as sowner on  sowner.USER_ID =' + userID;
+	var query =  'select shop.SHOP_ID as shopId, shop.NAME as name, shop.LAT as lat, shop.lang as lang, shop.ADRESS as address, shop.LOCATION_ID as locationId, shop.BROADER_CATEGORY as broaderCategory, shop.GST as gst, shop.VERIFIED as verified, shop.PHOTO_LINK as photoLink from VD_SHOP as shop inner join VD_SHOP_OWNER as sowner on  sowner.USER_ID =' + userID;
 	DBUtil.query(query, (err, recordsets) => {
 	if(err == null) {
 			callback(recordsets['recordset']);
@@ -17,7 +17,7 @@ exports.getShopDetails = (callback, userID) =>{
 
 
 exports.getAllShops = (callback) => {
-	var query = " select  * from VD_SHOP";
+	var query = " select  NAME as name, LAT as lat, LANG as lang, ADRESS as address, LOCATION_ID as locationId, BROADER_CATEGORY as broaderCategory, GST as gst, VERIFIED as verified, PHOTO_LINK as photoLink from VD_SHOP";
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
@@ -43,7 +43,7 @@ exports.changeStatusShop = (callback, shopAttr) =>{
 }
 
 exports.getPhotosLink = (callback, productid) =>{
-	var query = "select * from SHOP_PHOTO where SHOP_ID = " + productid;
+	var query = "select PHOTO_ID as photoId, SHOP_ID as shopId, PHOTO_ADRESS as photoAddress, VERIFIED as verified from SHOP_PHOTO where SHOP_ID = " + productid;
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
