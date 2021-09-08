@@ -1,7 +1,7 @@
 const DBUtil = require('./DBUtil');
 
 exports.getBroaderCategory = (callback) =>{
-	var query = "select * from VD_CATEGORY";
+	var query = "select CATEGORY_ID as categoryId,CATEGORY_NAME as categoryName, SUB_CATEGORY as subCategory, VERTICAL as vertical  from VD_CATEGORY";
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
@@ -17,7 +17,7 @@ exports.getBroaderCategory = (callback) =>{
 
 
 exports.getAllBrands = (callback) =>{
-	var query = "select * from VD_BRAND";
+	var query = "select BRAND_ID as brandId,BRAND_NAME as brandName  from VD_BRAND";
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
