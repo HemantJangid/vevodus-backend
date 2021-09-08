@@ -29,7 +29,7 @@ const s3Client = new AWS.S3(DBUtil.getAWSConf);
 
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('Hello World')
 })
 
 
@@ -43,9 +43,10 @@ DBUtil.healthCheck((i)=>{
 );
 
 
-app.get('/api/v1/shop/getdetails', (req, res) =>{
+app.get('/api/v1/shop/getDetails', (req, res) =>{
     var userID = req.query['userid'];
     if(userID == null) {
+        res.status(201)
         res.send("Missing user id.");
     }
     else {
@@ -82,6 +83,7 @@ app.get('/api/v1/shop/getPhotosLink', (req, res) =>{
 app.get('/api/v1/product/getProducts' , (req,res) =>{
     var userID = req.query['shopid'];
     if(userID == null) {
+        res.status(201);
         res.send("Missing shopid id.");
     }
     else {
@@ -127,12 +129,12 @@ app.post('/api/v1/user/validate', (req, res) =>{
             let length = i.length;
             console.log("length" + i.length);
             if(length == 1) {
-                    let userIDResp = i[0]['USER_ID'];
+                    let userIDResp = i[0]['userId'];
                     console.log(userIDResp);
                     if(userDetails.app == 'SELLER') {
                         shopDetail.getShopDetails((ii) =>{
                                 let responseConsturct = {};
-                                responseConsturct['userDetails'] = i;
+                                responseConsturct['userDetail'] = i;
                                 responseConsturct['shopDetail'] = ii;
                                 res.status(200);
                                 res.send(responseConsturct);
@@ -304,7 +306,7 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
     let shopOwnerName = req.body.shopownername;
     let mobile = req.body.mobile;
     let emailAddress = req.body.address;
-    let pincode = req.body.locationid;
+    let pincode = req.body.pincode;
     let shopName = req.body.shopname;
     let lang = req.body.lang;
     let lat = req.body.lat;
@@ -444,7 +446,7 @@ app.post('/api/v1/product/changeQuantity', (req, res) =>{
 
 
 
-app.get('/api/v1/getAllCatogriesaAndBrands', (req, res) =>{
+app.get('/api/v1/getAllCategoriesAndBrands', (req, res) =>{
     categories.getBroaderCategory((i) =>{
         categories.getAllBrands((ii) =>{
             let response = {};
@@ -454,6 +456,12 @@ app.get('/api/v1/getAllCatogriesaAndBrands', (req, res) =>{
         });
         
     });
+});
+
+app.get('/api/v1/pincode/getAllPinCodes', (req, res) =>{
+    location.getAllPinCodes((i)=>{
+        res.send(i);
+    })
 });
 
 
