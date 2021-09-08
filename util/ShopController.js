@@ -57,4 +57,45 @@ exports.getPhotosLink = (callback, productid) =>{
 
 };
 
+exports.addNewShop = (shopAttrs) =>{
+	var query = "insert into VD_SHOP(NAME, LAT, LANG, ADRESS, LOCATION_ID, BROADER_CATEGORY, GST, VERIFIED)"
+	query += " values('" + shopAttrs['shopName'] + "', '" + shopAttrs['lat'] +"','" + shopAttrs['lang'] +"', '" + shopAttrs['address'] +"'" + shopAttrs['locationID'] +",'" + shopAttrs['broaderCategory'] + "','" + shopAttrs['GST']+"',0); SELECT SCOPE_IDENTITY() as shopid;";
+	return query;
+}
+
+exports.addUserShopMapped = (userAttrs) => {
+	var query = "insert into VD_SHOP_OWNER(SHOP_ID, USER_ID) " 
+	query += " values (" + userAttrs['shopID'] +"," + userAttrs['userID']+ ");";
+	return query;
+}
+
+exports.addShopPhoto = (productID, photoAdress, isverified) =>{
+	var query = "INSERT INTO SHOP_PHOTO (SHOP_ID, PHOTO_ADRESS, VERIFIED) VALUES (" + productID +",'"  +  photoAdress + "'," +  isverified + ");";
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback("OK");
+		}
+		else{
+			callback("Internal Server Error" + err);
+			console.log("Internl in shop image  error" + err);
+		}
+
+	});
+};
+
+exports.updateDefaultPhotoLink = (shopID, photoLink) =>{
+	var query = "UPDATE VD_SHOP SET PHOTO_LINK = '"+ photoLink + "' WHERE SHOP_ID in (" + shopID +")";
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback("OK");
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Adding default link .Internl server error" + err);
+		}
+	});
+}
+
+
+
 
