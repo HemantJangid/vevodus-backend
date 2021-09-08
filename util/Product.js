@@ -31,7 +31,7 @@ exports.addProductsV2 = (productAttrs) =>{
 
 
 exports.getProducts = (callback, shopID) =>{
-	var query = "select * from VD_PRODUCT where PRODUCT_ID in (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id = " + shopID + ")";
+	var query = "select PRODUCT_ID as productId, MRP as mrp, SP as sp, CATEGORY_ID as categoryId, Quantity as quantity,  BRAND_ID as brandId, PRODUCT_SPECIFICATION as productSpecification, RETURN_POLICY as returnPolicy, VERIFIED as verified, IS_LIVE as isLive, PHOTO_LINK as photoLink from VD_PRODUCT where PRODUCT_ID in (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id = " + shopID + ")";
 		DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
@@ -85,7 +85,7 @@ exports.changeQuantity = (callback, productAttr) =>{
 }
 
 exports.getPhotosLink = (callback, productid) =>{
-	var query = "select * from VD_PRODUCT_PHOTO where product_id = " + productid;
+	var query = "select PHOTO_ID as photoId, PRODUCT_ID as productId, PHOTO_ADRESS as photoAddress, VERIFIED as verified from VD_PRODUCT_PHOTO where product_id = " + productid;
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
@@ -100,7 +100,7 @@ exports.getPhotosLink = (callback, productid) =>{
 };
 
 exports.getProductAttrs = (callback, productid) =>{
-	var query = "select * from VD_PRODCUT_ATTRIBUTES where product_id =  " + productid;
+	var query = "select PRODUCT_ID as productId, ATTR_NAME as attrName, ATTR_VAL  as attrVal from VD_PRODCUT_ATTRIBUTES where product_id =  " + productid;
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
