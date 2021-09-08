@@ -20,3 +20,7 @@ exports.addNewBrand = (callback, brandName) =>{
 	});
 
 };
+
+exports.addNewBrand2 = (brandName) => {
+	return " INSERT INTO VD_BRAND (BRAND_NAME) VALUES ('" + brandName+ "'); SELECT SCOPE_IDENTITY() as primaryKey;";
+}
