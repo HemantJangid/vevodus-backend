@@ -44,7 +44,7 @@ DBUtil.healthCheck((i)=>{
 
 
 app.get('/api/v1/shop/getDetails', (req, res) =>{
-    var userID = req.query['userid'];
+    var userID = req.query['userId'];
     if(userID == null) {
         res.status(201)
         res.send("Missing user id.");
@@ -65,8 +65,8 @@ app.get('/api/v1/getAllShops', (req, res) =>{
 
 app.post('/api/v1/shop/statusChanged', (req, res) => {
     var shopAttrs = {
-        shopIDs : req.body.shopids,
-        isVerified : req.body.isverified,
+        shopIDs : req.body.shopIds,
+        isVerified : req.body.isVerified,
     }
     shopDetail.changeStatusShop((i) =>{
             res.send(i);
@@ -74,14 +74,14 @@ app.post('/api/v1/shop/statusChanged', (req, res) => {
 });
 
 app.get('/api/v1/shop/getPhotosLink', (req, res) =>{
-    let productid = req.query.shopid;
+    let productid = req.query.shopId;
     shopDetail.getPhotosLink((i) =>{
         res.send(i);
     }, productid);
 });
 
 app.get('/api/v1/product/getProducts' , (req,res) =>{
-    var userID = req.query['shopid'];
+    var userID = req.query['shopId'];
     if(userID == null) {
         res.status(201);
         res.send("Missing shopid id.");
@@ -97,8 +97,8 @@ app.get('/api/v1/product/getProducts' , (req,res) =>{
 
 app.post('/api/v1/product/statusChanged', (req, res) => {
     var shopAttrs = {
-        productIDs : req.body.productids,
-        isVerified : req.body.isverified,
+        productIDs : req.body.productIds,
+        isVerified : req.body.isVerified,
     }
     product.changeStatusProduct((i) =>{
             res.send(i);
@@ -107,8 +107,8 @@ app.post('/api/v1/product/statusChanged', (req, res) => {
 
 app.post('/api/v1/product/liveStatusChanged', (req, res) => {
     var shopAttrs = {
-        productIDs : req.body.productids,
-        isVerified : req.body.isverified,
+        productIDs : req.body.productIds,
+        isVerified : req.body.isVerified,
     }
     product.changeLiveStatusProduct((i) =>{
             res.send(i);
@@ -163,7 +163,7 @@ app.post('/api/v1/user/validate', (req, res) =>{
 ///////// USER API END
 
 app.get('/api/v1/product/getPhotosLink', (req, res) =>{
-    let productid = req.query.productid;
+    let productid = req.query.productId;
     product.getPhotosLink((i) =>{
         res.send(i);
     }, productid);
@@ -171,26 +171,26 @@ app.get('/api/v1/product/getPhotosLink', (req, res) =>{
 
 
 app.get('/api/v1/product/getProductAttrs', (req, res) =>{
-    let productid = req.query.productid;
+    let productid = req.query.productId;
     product.getProductAttrs((i) =>{
         res.send(i);
     }, productid);
 });
 
 app.post('/api/v1/product/add',  async (req, res) =>{
-    let shopID = req.body.shopid;
+    let shopID = req.body.shopId;
     if(shopID != null) {
         res.status(201);
         res.send("Missing Shop ID.");
     }
     else{
         try{
-            let categoryID = req.body.categoryid;
-            let brandID = req.body.brandid;
+            let categoryID = req.body.categoryId;
+            let brandID = req.body.brandId;
             if(categoryID == null) {
                 let categoryAttrs = {};
-                categoryAttrs['categoryName'] = req.body.categoryname;
-                categoryAttrs['subCategory'] = req.body.subcategory;
+                categoryAttrs['categoryName'] = req.body.categoryName;
+                categoryAttrs['subCategory'] = req.body.subCategory;
                 categoryAttrs['vertical'] = req.body.vertical;
                 let addNewCategoryQuery = categories.addNewCategoryv2(categoryAttrs);
                 await sql.connect(DBUtil.syncConfig)
@@ -198,7 +198,7 @@ app.post('/api/v1/product/add',  async (req, res) =>{
                 categoryID = categoriesResponse['recordset'][0]['primaryKey'];
             }
             if(brandID == null) {
-                let otherBrandName = req.body.brandname;
+                let otherBrandName = req.body.brandName;
                 let addNewBrandQuery = brand.addNewBrand2(otherBrandName);
                 await sql.connect(DBUtil.syncConfig)
                 let brandResponse = await sql.query`${addNewBrandQuery}`;
@@ -206,14 +206,14 @@ app.post('/api/v1/product/add',  async (req, res) =>{
             }
 
             let productAttrs = {};
-            productAttrs['productName'] = req.body.productname;
+            productAttrs['productName'] = req.body.productName;
             productAttrs['MRP'] = req.body.mrp;
             productAttrs['SP'] = req.body.sp;
             productAttrs['categoryID'] = categoryID;
             productAttrs['quantity'] = req.body.quantity;
             productAttrs['brandID'] = brandID;
-            productAttrs['productSpecification'] = req.body.productdesc;
-            productAttrs['returnPolicy'] = req.body.returnpolicy;
+            productAttrs['productSpecification'] = req.body.productDesc;
+            productAttrs['returnPolicy'] = req.body.returnPolicy;
             productAttrs['verified'] = 0;
             productAttrs['islive'] = 0;
             let addNewProdcutQuery = prodcut.addProductsV2(productAttrs);
@@ -232,9 +232,9 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 
 
             let productRequrestAttrs = {};
-            productRequrestAttrs['key'] = request.body.productspecificationkey;
-            productRequrestAttrs['value'] = request.body.productspecificationvalue;
-            if(request.body.productspecificationkey != null) {
+            productRequrestAttrs['key'] = request.body.productSpecificationkey;
+            productRequrestAttrs['value'] = request.body.productSpecificationvalue;
+            if(request.body.productSpecificationkey != null) {
                 let arrayProductSpecificationKey = productRequrestAttrs['key'].split(',');
                 let arrayProductSpecificationValue = productRequrestAttrs['value'].split(',');
                 for(let k = 0 ; k <arrayProductSpecificationKey.length ; k ++) {
@@ -247,7 +247,7 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 
             //photo upload path
 
-            let photoLength = request.body.photolength;
+            let photoLength = request.body.photoLength;
             if(photoLength != undefined) {
                 let fileKeys = Object.keys(req.files);
                 for(let photoIte = 0; photoIte < photolength ; photoIte++) {
@@ -304,17 +304,17 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 });
 
 app.post('/api/v1/shop/signup', async (req, res) =>{
-    let shopOwnerName = req.body.shopownername;
+    let shopOwnerName = req.body.shopOwnerName;
     let mobile = req.body.mobile;
     let emailAddress = req.body.address;
     let pincode = req.body.pincode;
     let shopName = req.body.shopname;
     let lang = req.body.lang;
     let lat = req.body.lat;
-    let category = req.body.broadercategory;
+    let category = req.body.broaderCategory;
     let GST = req.body.gst;
     let address = req.body.address;
-    let nearbylandmark = req.body.nearbylandmark;
+    let nearbylandmark = req.body.nearByLandmark;
     let broaderCategory = req.body.broaderCategory;
     
 
@@ -382,7 +382,7 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
 
                     //photo upload path
 
-        let photoLength = request.body.photolength;
+        let photoLength = request.body.photoLength;
         if(photoLength != undefined) {
             let fileKeys = Object.keys(req.files);
             for(let photoIte = 0; photoIte < fileKeys.length ; photoIte++) {
@@ -439,7 +439,7 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
 app.post('/api/v1/product/changeQuantity', (req, res) =>{
     var productAttrs = {
         quantity : req.body.quantity,
-        productid : req.body.productid
+        productid : req.body.productId
     }
     product.changeQuantity((i) =>{
         res.send(i);
