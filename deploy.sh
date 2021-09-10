@@ -1,3 +1,3 @@
 killall node
 npm install
-nohup npm start &
+nohup npm start > output.txt &
