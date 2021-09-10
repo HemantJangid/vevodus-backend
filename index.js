@@ -249,9 +249,10 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 
             let photoLength = request.body.photolength;
             if(photoLength != undefined) {
+                let fileKeys = Object.keys(req.files);
                 for(let photoIte = 0; photoIte < photolength ; photoIte++) {
-                    let photoKeyReq = "photo" + photoIte;
-                    let photoFileName = request.body[photoKeyReq].name + Math.floor(+new Date() / 1000);
+                    let photoKeyReq = fileKeys[photoIte];
+                    let photoFileName = request.files[photoKeyReq].name + Math.floor(+new Date() / 1000);
                     const s3 = new AWS.S3();
 
                     // Binary data base64
@@ -383,9 +384,10 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
 
         let photoLength = request.body.photolength;
         if(photoLength != undefined) {
-            for(let photoIte = 0; photoIte < photolength ; photoIte++) {
-                let photoKeyReq = "photo" + photoIte;
-                let photoFileName = request.body[photoKeyReq].name + Math.floor(+new Date() / 1000);
+            let fileKeys = Object.keys(req.files);
+            for(let photoIte = 0; photoIte < fileKeys.length ; photoIte++) {
+                let photoKeyReq = fileKeys[photoIte];
+                let photoFileName = request.files[photoKeyReq].name + Math.floor(+new Date() / 1000);
                 const s3 = new AWS.S3();
 
                 // Binary data base64
@@ -477,6 +479,14 @@ app.get('/api/v1/pincode/getAllPinCodes', (req, res) =>{
 
 app.post('/upload1' , (req, res) =>{
     console.log(req.files)
+    var files = [];
+    var fileKeys = Object.keys(req.files);
+
+fileKeys.forEach(function(key) {
+    console.log(key);
+    files.push(req.files[key]);
+});
+console.log(files);
 });
 
 
