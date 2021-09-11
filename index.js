@@ -97,8 +97,8 @@ app.get('/api/v1/product/getProducts' , (req,res) =>{
 
 app.post('/api/v1/product/statusChanged', (req, res) => {
     var shopAttrs = {
-        productIDs : req.body.productIds,
-        isVerified : req.body.isVerified,
+        productids : req.body.productIds,
+        isverified : req.body.isVerified,
     }
     product.changeStatusProduct((i) =>{
             res.send(i);
@@ -107,8 +107,8 @@ app.post('/api/v1/product/statusChanged', (req, res) => {
 
 app.post('/api/v1/product/liveStatusChanged', (req, res) => {
     var shopAttrs = {
-        productIDs : req.body.productIds,
-        isVerified : req.body.isVerified,
+        productids : req.body.productIds,
+        isverified : req.body.isVerified,
     }
     product.changeLiveStatusProduct((i) =>{
             res.send(i);
@@ -194,14 +194,14 @@ app.post('/api/v1/product/add',  async (req, res) =>{
                 categoryAttrs['vertical'] = req.body.vertical;
                 let addNewCategoryQuery = categories.addNewCategoryv2(categoryAttrs);
                 await sql.connect(DBUtil.syncConfig)
-                let categoriesResponse = await sql.query`${addNewCategoryQuery}`;
+                let categoriesResponse = await sql.query(addNewCategoryQuery);
                 categoryID = categoriesResponse['recordset'][0]['primaryKey'];
             }
             if(brandID == null) {
                 let otherBrandName = req.body.brandName;
                 let addNewBrandQuery = brand.addNewBrand2(otherBrandName);
                 await sql.connect(DBUtil.syncConfig)
-                let brandResponse = await sql.query`${addNewBrandQuery}`;
+                let brandResponse = await sql.query(addNewBrandQuery);
                 brandID = recordsets['recordset'][0]['primaryKey'];
             }
 
@@ -218,7 +218,7 @@ app.post('/api/v1/product/add',  async (req, res) =>{
             productAttrs['islive'] = 0;
             let addNewProdcutQuery = prodcut.addProductsV2(productAttrs);
             await sql.connect(DBUtil.syncConfig)
-            let addNewProductResponse = await sql.query`${addNewProdcutQuery}`;
+            let addNewProductResponse = await sql.query(addNewProdcutQuery);
             let productID = categoriesResponse['recordset'][0]['primaryKey'];
             // Sending Response with now.
             res.send("Success with productID: " + addNewProductResponse);
@@ -227,7 +227,7 @@ app.post('/api/v1/product/add',  async (req, res) =>{
             // async call
             let addProdcutMappedToShopQuery = prodcut.addProductMappedToShopV2({"productid" : productID , "brandID" : brandID, "shopID" : shopID});
             await sql.connect(DBUtil.syncConfig)
-            let addNewProductMappedToShopResponse = await sql.query`${addProdcutMappedToShopQuery}`;
+            let addNewProductMappedToShopResponse = await sql.query(addProdcutMappedToShopQuery);
             console.log("Product Mapped to Shop :" + addNewProductMappedToShopResponse);
 
 
@@ -240,10 +240,12 @@ app.post('/api/v1/product/add',  async (req, res) =>{
                 for(let k = 0 ; k <arrayProductSpecificationKey.length ; k ++) {
                     let addProductSpecificationsQuery = prodcut.addProductSpecificationsV2(productID, arrayProductSpecificationKey[k], arrayProductSpecificationValue[k]);
                     await sql.connect(DBUtil.syncConfig)
-                    let addProductSpecificationsQueryResponse = await sql.query`${addProductSpecificationsQuery}`;
+                    let addProductSpecificationsQueryResponse = await sql.query(addProductSpecificationsQuery);
                     console.log("Product Specification Result :" + addProductSpecificationsQueryResponse);
                 }
             }
+
+            res.send("OK");
 
             //photo upload path
 
@@ -293,6 +295,28 @@ app.post('/api/v1/product/add',  async (req, res) =>{
                 }
 
             }
+            else{
+                let photosLinkParam = req.body.photos;
+                if(photosLinkParam != undefined && photoLength > 0) {
+                    for(let gg = 0 ; gg < photoLength ; gg++){
+                        let linkToUpload = photosLinkParam[gg];
+                        if(photoLength == 1) {
+                            linkToUpload = photosLinkParam;
+                        }
+                        // Add New Photo Links
+                        product.addProductPhoto((photoRes) =>{
+                            console.log("Addded Photo Links Response" + photoRes);
+                            if(gg == 0) {
+                                // update the PRODUCT table with default link.
+                                product.updateDefaultPhotoLink((defaultLinkRes)=>{
+                                    console.log("Product ID with default link = " + productID);
+                                    console.log("Updating default Link =" + defaultLinkRes);
+                                }, productID,linkToUpload);
+                            }
+                        }, productID, linkToUpload, 0);
+                    }
+                }
+            }
 
         }
         catch(e) {
@@ -306,23 +330,22 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 app.post('/api/v1/shop/signup', async (req, res) =>{
     let shopOwnerName = req.body.shopOwnerName;
     let mobile = req.body.mobile;
-    let emailAddress = req.body.address;
+    let emailAddress = req.body.emailAddress;
     let pincode = req.body.pincode;
-    let shopName = req.body.shopname;
+    let shopName = req.body.shopName;
     let lang = req.body.lang;
     let lat = req.body.lat;
     let category = req.body.broaderCategory;
     let GST = req.body.gst;
     let address = req.body.address;
-    let nearbylandmark = req.body.nearByLandmark;
     let broaderCategory = req.body.broaderCategory;
+    let password = req.body.password;
     
 
     let reqJSON = {
         'shopOwnerName' : shopOwnerName,
         'mobile' : mobile,
         'emailAddress' : emailAddress,
-        'pincode' : pincode,
         'shopName' : shopName,
         'lang' : lang,
         'lat' : lat,
@@ -330,12 +353,14 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
         'GST' : GST,
         "address" : address,
         'broaderCategory' : broaderCategory,
-        'nearBYAddress' : nearbylandmark,
-        'role' : 'SELLER'
+        'role' : 'SELLER',
+        'nearBYAddress' : 'dummy',
+        'locationID' : 3,
+        'password' : password
     };
 
     // iterate for missong
-    for(var k in a){
+    for(var k in reqJSON){
         if(reqJSON[k] == undefined) {
             res.status(201);
             res.send("Missing Attributes = " + k);
@@ -344,92 +369,239 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
     }
 
     try {
-        let locationIDQuery = location.getLocationID(pincode);
-        await sql.connect(DBUtil.syncConfig)
-        let locationIDResponse = await sql.query`${locationIDQuery}`;
-        let locationID = locationIDResponse['recordset'][0]['LOCATION_ID'];
-
-        // adding shop
-        reqJSON['locationID'] = locationID;
         let addShopQuery = shopDetail.addNewShop(reqJSON);
         await sql.connect(DBUtil.syncConfig)
-        let addNewShopResponse = await sql.query`${addShopQuery}`;
+        let addNewShopResponse = await sql.query(addShopQuery);
         let shopID = addNewShopResponse['recordset'][0]['shopid'];
         reqJSON['shopID'] = shopID;
 
         // add new user
         let addNewUserQuery = user.addNewUser(reqJSON);
         await sql.connect(DBUtil.syncConfig)
-        let addNewUserQueryResponse = await sql.query`${addNewUserQuery}`;
+        let addNewUserQueryResponse = await sql.query(addNewUserQuery);
         let userID = addNewUserQueryResponse['recordset'][0]['userid'];
         reqJSON['userID'] = userID;
+
+        // add password
+        let addNewUserPasswordQuery = user.addNewUserPassword(reqJSON);
+        await sql.connect(DBUtil.syncConfig)
+        let addNewUserPasswordQueryResponse = await sql.query(addNewUserPasswordQuery);
+        
+
 
         // add user Adress
         let addNewUserAddressQuery = user.addUserAddress(reqJSON);
         await sql.connect(DBUtil.syncConfig)
-        let addUserAddressResponse = await sql.query`${addNewUserAddressQuery}`;
+        let addUserAddressResponse = await sql.query(addNewUserAddressQuery);
 
         // add  User Role Mapped
         let addUserRoleMappedQuery = user.addUserRoleMapped(reqJSON);
         await sql.connect(DBUtil.syncConfig)
-        let addUserRoleMappedResponse = await sql.query`${addUserRoleMappedQuery}`;
+        let addUserRoleMappedResponse = await sql.query(addUserRoleMappedQuery);
 
         // add User Shop Mapped
         let addUserShopMappedQuery = shopDetail.addUserShopMapped(reqJSON);
         await sql.connect(DBUtil.syncConfig)
-        let addUserShopMappedResponse = await sql.query`${addUserShopMappedQuery}`;
+        let addUserShopMappedResponse = await sql.query(addUserShopMappedQuery);
 
+        res.send("OK");
+        //photo upload path
 
-                    //photo upload path
-
-        let photoLength = request.body.photoLength;
+        let photoLength = req.body.photoLength;
         if(photoLength != undefined) {
-            let fileKeys = Object.keys(req.files);
-            for(let photoIte = 0; photoIte < fileKeys.length ; photoIte++) {
-                let photoKeyReq = fileKeys[photoIte];
-                let photoFileName = request.files[photoKeyReq].name + Math.floor(+new Date() / 1000);
-                const s3 = new AWS.S3();
+            if(req.files != undefined){
+                let fileKeys = Object.keys(req.files);
+                for(let photoIte = 0; photoIte < fileKeys.length ; photoIte++) {
+                    let photoKeyReq = fileKeys[photoIte];
+                    let photoFileName = request.files[photoKeyReq].name + Math.floor(+new Date() / 1000);
+                    const s3 = new AWS.S3();
 
-                // Binary data base64
-                let fileContent  = Buffer.from(req.files[photoKeyReq].data, 'binary');
+                    // Binary data base64
+                    let fileContent  = Buffer.from(req.files[photoKeyReq].data, 'binary');
 
-                // Setting up S3 upload parameters
-                const params = {
-                    Bucket: 'vevodusbucket',
-                    Key: photoFileName, // File name you want to save as in S3
-                    Body: fileContent,
-                    ACL:'public-read'
-                };
+                    // Setting up S3 upload parameters
+                    const params = {
+                        Bucket: 'vevodusbucket',
+                        Key: photoFileName, // File name you want to save as in S3
+                        Body: fileContent,
+                        ACL:'public-read'
+                    };
 
-                console.log("Iterating AWS post request with post request : " + productID);
-                console.log("AWS FileName" + photoFileName);
+                    console.log("Iterating AWS post request with post request : " + productID);
+                    console.log("AWS FileName" + photoFileName);
 
-                // Uploading files to the bucket
-                s3Client.upload(params, function(err, data) {
-                    if (err) {
-                        console.log("Error in Uploading in AWS" + err);
-                        throw err;
-                    }
-                    console.log("AWS Response code = " + data);
-
-                    // Add New Photo Links
-                    shopDetail.addShopPhoto((photoRes) =>{
-                        console.log("Addded Photo Links Response" + photoRes);
-                        if(photoIte == 0) {
-                            // update the PRODUCT table with default link.
-                            shopDetail.updateDefaultPhotoLink((defaultLinkRes)=>{
-                                console.log("SHOP ID with default link = " + productID);
-                                console.log("Updating default Link =" + defaultLinkRes);
-                            }, reqJSON['shopID'],data.Location);
+                    // Uploading files to the bucket
+                    s3Client.upload(params, function(err, data) {
+                        if (err) {
+                            console.log("Error in Uploading in AWS" + err);
+                            throw err;
                         }
-                    }, reqJSON['shopID'], data.Location, 0);
-                   
-                });
-            }
+                        console.log("AWS Response code = " + data);
 
+                        // Add New Photo Links
+                        shopDetail.addShopPhoto((photoRes) =>{
+                            console.log("Addded Photo Links Response" + photoRes);
+                            if(photoIte == 0) {
+                                // update the PRODUCT table with default link.
+                                shopDetail.updateDefaultPhotoLink((defaultLinkRes)=>{
+                                    console.log("SHOP ID with default link = " + shopID);
+                                    console.log("Updating default Link =" + defaultLinkRes);
+                                }, reqJSON['shopID'],data.Location);
+                            }
+                        }, reqJSON['shopID'], data.Location, 0);
+                       
+                    });
+                }
+            }
+            else{
+                let photosLinkParam = req.body.photos;
+                if(photosLinkParam != undefined && photoLength > 0) {
+                    for(let gg = 0 ; gg < photoLength ; gg++){
+                        let linkToUpload = photosLinkParam[gg];
+                        if(photoLength == 1) {
+                            linkToUpload = photosLinkParam;
+                        }
+                        // Add New Photo Links
+                        shopDetail.addShopPhoto((photoRes) =>{
+                            console.log("Addded Photo Links Response" + photoRes);
+                            if(gg == 0) {
+                                // update the PRODUCT table with default link.
+                                shopDetail.updateDefaultPhotoLink((defaultLinkRes)=>{
+                                    console.log("Product ID with default link = " + shopID);
+                                    console.log("Updating default Link =" + defaultLinkRes);
+                                }, shopID,linkToUpload);
+                            }
+                        }, shopID, linkToUpload, 0);
+                    }
+                }
+            }
         }
     }
     catch(e){
+        console.log("Internal Server Error = " + e);
+        res.status(201);
+        res.send("Internal Server Error = " + e);
+    }
+
+});
+
+app.post('/api/v1/user/signup', async (req, res) =>{
+    let shopOwnerName = req.body.name;
+    let mobile = req.body.mobile;
+    let emailAddress = req.body.emailAddress;
+    let address = req.body.address;
+    let password = req.body.password;
+    
+
+    let reqJSON = {
+        'shopOwnerName' : shopOwnerName,
+        'mobile' : mobile,
+        'emailAddress' : emailAddress,
+        "address" : address,
+        'role' : 'BUYER',
+        'nearBYAddress' : 'dummy',
+        'locationID' : 3,
+        'password' : password
+    };
+
+    // iterate for missong
+    for(var k in reqJSON){
+        if(reqJSON[k] == undefined) {
+            res.status(201);
+            res.send("Missing Attributes = " + k);
+            return;
+        }
+    }
+
+    try {
+
+        // add new user
+        let addNewUserQuery = user.addNewUser(reqJSON);
+        await sql.connect(DBUtil.syncConfig)
+        let addNewUserQueryResponse = await sql.query(addNewUserQuery);
+        let userID = addNewUserQueryResponse['recordset'][0]['userid'];
+        reqJSON['userID'] = userID;
+
+        // add password
+        let addNewUserPasswordQuery = user.addNewUserPassword(reqJSON);
+        await sql.connect(DBUtil.syncConfig)
+        let addNewUserPasswordQueryResponse = await sql.query(addNewUserPasswordQuery);
+        
+
+
+        // add user Adress
+        let addNewUserAddressQuery = user.addUserAddress(reqJSON);
+        await sql.connect(DBUtil.syncConfig)
+        let addUserAddressResponse = await sql.query(addNewUserAddressQuery);
+
+        // add  User Role Mapped
+        let addUserRoleMappedQuery = user.addUserRoleMapped(reqJSON);
+        await sql.connect(DBUtil.syncConfig)
+        let addUserRoleMappedResponse = await sql.query(addUserRoleMappedQuery);
+
+       
+
+        res.send("OK");
+        //photo upload path
+
+        let photoLength = req.body.photoLength;
+        if(photoLength != undefined) {
+            if(req.files != undefined){
+                let fileKeys = Object.keys(req.files);
+                for(let photoIte = 0; photoIte < fileKeys.length ; photoIte++) {
+                    let photoKeyReq = fileKeys[photoIte];
+                    let photoFileName = request.files[photoKeyReq].name + Math.floor(+new Date() / 1000);
+                    const s3 = new AWS.S3();
+
+                    // Binary data base64
+                    let fileContent  = Buffer.from(req.files[photoKeyReq].data, 'binary');
+
+                    // Setting up S3 upload parameters
+                    const params = {
+                        Bucket: 'vevodusbucket',
+                        Key: photoFileName, // File name you want to save as in S3
+                        Body: fileContent,
+                        ACL:'public-read'
+                    };
+
+                    console.log("Iterating AWS post request with post request : " + productID);
+                    console.log("AWS FileName" + photoFileName);
+
+                    // Uploading files to the bucket
+                    s3Client.upload(params, function(err, data) {
+                        if (err) {
+                            console.log("Error in Uploading in AWS" + err);
+                            throw err;
+                        }
+                        console.log("AWS Response code = " + data);
+
+                        // Add New Photo Links
+                        user.addUserPhoto((photoRes) =>{
+                            console.log("Addded Photo Links Response" + photoRes);
+                        }, reqJSON['userID'], data.Location, 0);
+                       
+                    });
+                }
+            }
+            else{
+                let photosLinkParam = req.body.photos;
+                if(photosLinkParam != undefined && photoLength > 0) {
+                    for(let gg = 0 ; gg < photoLength ; gg++){
+                        let linkToUpload = photosLinkParam[gg];
+                        if(photoLength == 1) {
+                            linkToUpload = photosLinkParam;
+                        }
+                        // Add New Photo Links
+                        user.addUserPhoto((photoRes) =>{
+                            console.log("Addded Photo Links Response" + photoRes);
+                        }, reqJSON['userID'], linkToUpload, 0);
+                    }
+                }
+            }
+        }
+    }
+    catch(e){
+        console.log("Internal Server Error = " + e);
         res.status(201);
         res.send("Internal Server Error = " + e);
     }
@@ -467,15 +639,80 @@ app.get('/api/v1/pincode/getAllPinCodes', (req, res) =>{
 });
 
 
+app.post('/api/v1/product/checkout', (req, res) =>{
+   
+    let userID = req.body.userId;
+    let productId = req.body.productId;
+    if(userID != undefined && productId != undefined) {
+        user.addCheckout((ii)=>{
+            res.send(ii);
+        }, userID , productId);
+    }
+    else{
+        res.status(201);
+        res.send("Missing userId and productId parameters");
+    }
+});
+
+
+app.post('/api/v1/checkout/statusChanged', (req, res) =>{
+    
+    let checkout = req.body.checkoutId;
+    let status = req.body.status;
+    if(checkout != undefined && status != undefined) {
+        if(status == 'APPROVE') {
+            status ='A';
+        }
+        else if(status == 'DECLINE'){
+            status = 'D'
+        }
+        else{
+            status = 'N';
+        }
+        user.changeStatusCheckout((ii)=>{
+            res.send(ii);
+        }, checkout , status);
+    }
+    else{
+        res.status(201);
+        res.send("Missing checkout and status parameters");
+    }
+});
 
 
 
+app.get('/ap1/v1/getCheckoutDetails' , async (req, res) =>{
+    let shopID = req.query.shopId;
+    if(shopID != undefined){
+        try{
+            let checkoutQuery = product.getCheckoutHistory(shopID);
+            await sql.connect(DBUtil.syncConfig)
+            let checkoutQueryResponse = await sql.query(checkoutQuery);
+            let userID = checkoutQueryResponse['recordset'][0]['USER_ID'];
+           
 
+            let userDetailQuery = user.getUserInfo(userID);
+            await sql.connect(DBUtil.syncConfig)
+            let userDetailQueryResponse = await sql.query(userDetailQuery);
 
+            let response = {};
+            response['checkoutInfo'] = checkoutQueryResponse['recordset'][0];
+            response['userInfo'] =userDetailQueryResponse['recordset'][0];
+            res.send(response);
 
-
-
-
+            
+        }
+        catch(e){
+            res.status(201);
+            res.send("Internal server error" + e);
+        }
+        
+    }
+    else {
+        res.status(201);
+        res.send("Missing shopId parameters");
+    }
+});
 
 app.post('/upload1' , (req, res) =>{
     console.log(req.files)
