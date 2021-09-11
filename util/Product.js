@@ -153,7 +153,7 @@ exports.addProductSpecificationsV2 = (productID, key, value) =>{
 	return query;
 };
 
-exports.addProductPhoto = (productID, photoAdress, isverified) =>{
+exports.addProductPhoto = (callback, productID, photoAdress, isverified) =>{
 	var query = "INSERT INTO VD_PRODUCT_PHOTO (PRODUCT_ID, PHOTO_ADRESS, VERIFIED) VALUES (" + productID +",'"  +  photoAdress + "'," +  isverified + ");";
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
@@ -168,7 +168,7 @@ exports.addProductPhoto = (productID, photoAdress, isverified) =>{
 };
 
 
-exports.updateDefaultPhotoLink = (productID, photoLink) =>{
+exports.updateDefaultPhotoLink = (callback, productID, photoLink) =>{
 	var query = "UPDATE VD_PRODUCT SET PHOTO_LINK = '"+ photoLink + "' WHERE PRODUCT_ID in (" + productID +")";
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
@@ -180,3 +180,16 @@ exports.updateDefaultPhotoLink = (productID, photoLink) =>{
 		}
 	});
 }
+
+
+exports.getCheckoutHistory = (shopID) =>{
+	var query = "select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId,  a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy,  a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName, b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.PRODUCT_ID  in (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id =" + shopID+") and a.CATEGORY_ID = b.category_id ";
+	query = "select * from VD_USER_CHECKOUT as a inner join (";
+    query+= " select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId, ";
+	 query+=  "a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy, ";
+	  query+=  "a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName, ";
+	  query+=  " b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.PRODUCT_ID  in ";
+	  query+=  " (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id =1) and a.CATEGORY_ID = b.category_id ) as b on a.PRODUCT_ID = b.productId ";
+	return query;
+};
+
