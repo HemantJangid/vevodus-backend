@@ -86,5 +86,10 @@ exports.getUserInfo = (userId) => {
 	return query;
 }
 
+exports.uniqueUser = (mobile) => {
+	var query = " select * from VD_USER_PROFILE where MOBILE = '" + mobile + "';";
+	return query;
+}
+
 
 
