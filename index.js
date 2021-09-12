@@ -183,17 +183,12 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 
     let attributeMissing = {};
     
-    if(req.body.categoryId ==  undefined && req.body.categoryName == undefined) {
+    if((req.body.categoryId ==  undefined || req.body.categoryId == -1) && req.body.categoryName == undefined) {
         res.status(201);
         res.send("Missing cateGoryName Parameter.");
         return;
     }
     
-    if(req.body.brandId ==  undefined && req.body.brandName == undefined) {
-        res.status(201);
-        res.send("Missing brandName Parameter.");
-        return;
-    }
 
     attributeMissing['productName'] =req.body.productName;
     attributeMissing['MRP'] =req.body.mrp;
@@ -228,7 +223,7 @@ app.post('/api/v1/product/add',  async (req, res) =>{
     else{
         try{
             let categoryID = req.body.categoryId;
-            let brandID = req.body.brandId;
+            let brandID = 1;
             if(categoryID == null) {
                 let categoryAttrs = {};
                 categoryAttrs['categoryName'] = req.body.categoryName;
