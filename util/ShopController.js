@@ -2,7 +2,7 @@ const DBUtil = require('./DBUtil');
 
 exports.getShopDetails = (callback, userID) =>{
 	console.log(userID + "checking");
-	var query =  'select shop.SHOP_ID as shopId, shop.NAME as shopName, shop.LAT as lat, shop.lang as lang, shop.ADRESS as address,  shop.BROADER_CATEGORY as broaderCategory, shop.GST as gst, shop.VERIFIED as verified, shop.PHOTO_LINK as photoLink from VD_SHOP as shop inner join VD_SHOP_OWNER as sowner on  sowner.USER_ID =' + userID;
+	var query =  'select shop.SHOP_ID as shopId, shop.NAME as shopName, shop.LAT as lat, shop.lang as lang, shop.ADRESS as address,  shop.BROADER_CATEGORY as broaderCategory, shop.GST as gst, shop.VERIFIED as verified, shop.PHOTO_LINK as photoLink from VD_SHOP as shop inner join VD_SHOP_OWNER as sowner on   sowner.SHOP_ID = shop.SHOP_ID and sowner.USER_ID =' + userID;
 	DBUtil.query(query, (err, recordsets) => {
 	if(err == null) {
 			callback(recordsets['recordset']);
