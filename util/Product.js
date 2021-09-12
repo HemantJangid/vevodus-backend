@@ -24,8 +24,8 @@ exports.addProducts = (callback, productAttrs) =>{
 };
 
 exports.addProductsV2 = (productAttrs) =>{
-	var query = "insert into VD_PRODUCT(NAME, MRP, SP, CATEGORY_ID, Quantity, BRAND_ID, PRODUCT_SPECIFICATION, RETURN_POLICY, VERIFIED, IS_LIVE) "
-" values ('" + productAttrs.productName +"', " + productAttrs.MRP + "," + productAttrs.SP + ", " + productAttrs.categoryID + ", " + productAttrs.quantity + ", " + productAttrs.brandID + ",'" + productAttrs.productSpecification + "'," + productAttrs.returnPolicy + "," + productAttrs.verified + "," + productAttrs.islive + ");SELECT SCOPE_IDENTITY() as primaryKey;";
+	var query = "insert into VD_PRODUCT(NAME, MRP, SP, CATEGORY_ID, Quantity, BRAND_ID, PRODUCT_SPECIFICATION, RETURN_POLICY, VERIFIED, IS_LIVE)  values ('" + productAttrs.productName +"', " + productAttrs.MRP + "," + productAttrs.SP + ", " + productAttrs.categoryID + ", " + productAttrs.quantity + ", " + productAttrs.brandID + ",'" + productAttrs.productSpecification + "'," + productAttrs.returnPolicy + "," + productAttrs.verified + "," + productAttrs.islive + ");SELECT SCOPE_IDENTITY() as primaryKey;";
+	console.log(query);
 	return query;
 }
 
@@ -33,6 +33,10 @@ exports.addProductsV2 = (productAttrs) =>{
 exports.getProducts = (callback, shopID) =>{
 	var query = "select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId,  a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy,  a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName, b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.PRODUCT_ID  in (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id =" + shopID+") and a.CATEGORY_ID = b.category_id ";
 	//var query = "select PRODUCT_ID as productId, NAME as name, MRP as mrp, SP as sp, CATEGORY_ID as categoryId, Quantity as quantity,  BRAND_ID as brandId, PRODUCT_SPECIFICATION as productSpecification, RETURN_POLICY as returnPolicy, VERIFIED as verified, IS_LIVE as isLive, PHOTO_LINK as photoLink from VD_PRODUCT where PRODUCT_ID in (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id = " + shopID + ")";
+		if(shopID == -1 || shopID == '-1') {
+			query = "select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId,  a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy,  a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName, b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.CATEGORY_ID = b.category_id ";
+
+		}
 		DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
@@ -183,13 +187,7 @@ exports.updateDefaultPhotoLink = (callback, productID, photoLink) =>{
 
 
 exports.getCheckoutHistory = (shopID) =>{
-	var query = "select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId,  a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy,  a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName, b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.PRODUCT_ID  in (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id =" + shopID+") and a.CATEGORY_ID = b.category_id ";
-	query = "select * from VD_USER_CHECKOUT as a inner join (";
-    query+= " select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId, ";
-	 query+=  "a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy, ";
-	  query+=  "a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName, ";
-	  query+=  " b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.PRODUCT_ID  in ";
-	  query+=  " (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id =1) and a.CATEGORY_ID = b.category_id ) as b on a.PRODUCT_ID = b.productId ";
+	var query = "select a.CHECKOUT_ID as checkout, a.USER_ID as userId, a.PRODUCT_ID as productId, a.status as status , bb.name as name, bb.mrp as mrp, bb.sp as sp, bb.quantity as quantity, bb.brandId as brandId, bb.productSpecification as productSpecification, bb.returnPolicy as returnPolicy, bb.verified as verified, bb.isLive as isLive, bb.photoLink as photoLink from VD_USER_CHECKOUT as a inner join ( select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId, a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy, a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName,  b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.PRODUCT_ID  in  (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id =" +  shopID+") and a.CATEGORY_ID = b.category_id ) as bb on a.PRODUCT_ID = bb.productId";
 	return query;
 };
 
