@@ -24,7 +24,7 @@ exports.addProducts = (callback, productAttrs) =>{
 };
 
 exports.addProductsV2 = (productAttrs) =>{
-	var query = "insert into VD_PRODUCT(NAME, MRP, SP, CATEGORY_ID, Quantity, BRAND_ID, PRODUCT_SPECIFICATION, RETURN_POLICY, VERIFIED, IS_LIVE)  values ('" + productAttrs.productName +"', " + productAttrs.MRP + "," + productAttrs.SP + ", " + productAttrs.categoryID + ", " + productAttrs.quantity + ", " + productAttrs.brandID + ",'" + productAttrs.productSpecification + "'," + productAttrs.returnPolicy + "," + productAttrs.verified + "," + productAttrs.islive + ");SELECT SCOPE_IDENTITY() as primaryKey;";
+	var query = "insert into VD_PRODUCT(NAME, MRP, SP, CATEGORY_ID, Quantity, BRAND_ID, PRODUCT_SPECIFICATION, RETURN_POLICY, VERIFIED, IS_LIVE, PHOTO_LINK)  values ('" + productAttrs.productName +"', " + productAttrs.MRP + "," + productAttrs.SP + ", " + productAttrs.categoryID + ", " + productAttrs.quantity + ", " + productAttrs.brandID + ",'" + productAttrs.productSpecification + "'," + productAttrs.returnPolicy + "," + productAttrs.verified + "," + productAttrs.islive + ",'https://docksbeers.com/wp-content/uploads/2019/05/merch-TSHIRT-W-2-600x600.jpg');SELECT SCOPE_IDENTITY() as primaryKey;";
 	console.log(query);
 	return query;
 }
