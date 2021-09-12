@@ -17,7 +17,7 @@ exports.getShopDetails = (callback, userID) =>{
 
 
 exports.getAllShops = (callback) => {
-	var query = " select  NAME as name, LAT as lat, LANG as lang, ADRESS as address,  BROADER_CATEGORY as broaderCategory, GST as gst, VERIFIED as verified, PHOTO_LINK as photoLink from VD_SHOP";
+	var query = " select  shop_id as shopId, NAME as name, LAT as lat, LANG as lang, ADRESS as address,  BROADER_CATEGORY as broaderCategory, GST as gst, VERIFIED as verified, PHOTO_LINK as photoLink from VD_SHOP";
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
