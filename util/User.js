@@ -2,7 +2,7 @@ const DBUtil = require('./DBUtil');
 
 
 exports.authenticate = (callback, userDetails) =>{
-	var query = "select a.USER_ID as userId, a.Name as name, a.EMAILADRESS as emailAddress, a.MOBILE as mobile, a.QOUTA as quota from VD_USER_PROFILE as a inner join USER_PASSWORD as b on a.USER_ID = b.USER_ID and b.PASSWORD = '" + userDetails.password + "' COLLATE Latin1_General_CS_AS and a.MOBILE='" + userDetails.mobile + "'";
+	var query = "select userRole.role, v.userId, v.name, v.emailAddress, v.mobile, v.quota from ( select a.USER_ID as userId, a.Name as name, a.EMAILADRESS as emailAddress, a.MOBILE as mobile, a.QOUTA as quota from VD_USER_PROFILE as a inner join USER_PASSWORD as b on a.USER_ID = b.USER_ID and b.PASSWORD = '" + userDetails.password + "'  COLLATE Latin1_General_CS_AS and a.MOBILE='" + userDetails.mobile + "') as v inner join USER_ROLE as userRole on v.userId = userRole.user_id";
 	console.log(query);
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
