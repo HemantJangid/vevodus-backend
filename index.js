@@ -6,7 +6,7 @@ const express = require('express')
 const app = express()
 const port = 3000
 var bodyParser  = require("body-parser");
-
+require('dotenv').config();
 
 const shopDetail = require('./util/ShopController');
 const user = require('./util/User');
@@ -61,7 +61,7 @@ app.get('/api/v1/shop/getDetails', (req, res) =>{
 app.get('/api/v1/getAllShops', (req, res) =>{
     shopDetail.getAllShops((i) =>{
             res.send(i);
-    });
+    }, req.query['verified']);
 })
 
 app.post('/api/v1/shop/statusChanged', (req, res) => {
@@ -83,6 +83,7 @@ app.get('/api/v1/shop/getPhotosLink', (req, res) =>{
 
 app.get('/api/v1/product/getProducts' , (req,res) =>{
     var userID = req.query['shopId'];
+    var isLive = req.query['isLive'];
     if(userID == null) {
         res.status(201);
         res.send("Missing shopid id.");
@@ -90,7 +91,7 @@ app.get('/api/v1/product/getProducts' , (req,res) =>{
     else {
         product.getProducts((i) =>{
             res.send(i);
-        }, userID)
+        }, userID, isLive, req.query['verified'])
 
     }
 })
@@ -866,6 +867,136 @@ app.post('/upload' , (req, res) =>{
     //console.log(result);
    // res.send(result);
 })
+
+
+ app.get('/api/v1/sendOTP', (req, res) =>{
+    let mobile = req.query.mobile;
+    if(mobile == null || mobile == undefined) {
+        res.status(201);
+        res.send("Missing Mobile Number Parameter");
+        return;
+    }
+    var otp = Math.floor(1000 + Math.random() * 9000);
+    var sns = new AWS.SNS();
+
+    sns.publish({
+            Message: "Vevodus OTP is "+ otp,
+            Subject: 'Admin',
+            PhoneNumber:"+91" + mobile
+    }, (err, result)=>{
+        if(err != null){
+            res.status(201);
+            res.send("Server Error in sending OTP.")
+            console.log("result",err,result)
+        }
+        else{
+            user.addOTP((i) =>{
+                if(i == "OK") {
+                    res.send("Successfully generated the OTP");
+                }
+                else{
+                    res.status(201);
+                    res.send("Server Error in sending OTP.")
+                }
+            }, mobile, otp);
+            
+        }
+    });
+
+ })
+
+ app.post('/api/v1/verifyOTP', (req, res) =>{
+    let mobile = req.body.mobile;
+    let otp = req.body.otp;
+    let app = req.body.app
+
+    let reqJSON = {
+        'mobile' : mobile,
+        'otp' : otp
+    };
+
+    // iterate for missong
+    for(var k in reqJSON){
+        if(reqJSON[k] == undefined) {
+            res.status(201);
+            res.send("Missing Attributes = " + k);
+            return;
+        }
+    }
+
+    if(app == undefined) {
+        reqJSON['app'] = 'Admins';
+    }
+
+    user.authenticate2((i) => {
+        console.log(i)
+        if(i != 'ERROR') {
+            let length = i.length;
+            console.log("length" + i.length);
+            if(length == 1) {
+                    let userIDResp = i[0]['userId'];
+                    console.log(userIDResp);
+                    if(reqJSON.app == 'SELLER') {
+                        shopDetail.getShopDetails((ii) =>{
+
+                                user.logout((i2) =>{
+                                    if(i2 == 'OK'){
+                                    //res.send("logout success");
+                                }
+                                else{
+                                    //res.status(201);
+                                    //res.send("logout error");
+                                }
+                            }, mobile)
+                                let responseConsturct = {};
+                                responseConsturct['userDetail'] = i;
+                                responseConsturct['shopDetail'] = ii;
+                                res.status(200);
+                                res.send(responseConsturct);
+                        }, userIDResp)
+
+                    }
+                    else {
+                        res.status(200);
+                        res.send(i);
+                    }
+
+            }
+            else {
+                res.status(201);
+                res.send("UnAuthenticate");
+            }
+
+        }
+        else {
+            res.status(201);
+            res.send("UnAuthenticate");
+        }
+    }, reqJSON);
+
+ })
+
+  app.get('/api/v1/logout', (req, res) =>{
+    let mobile = req.query.mobile;
+    if(mobile == null || mobile == undefined) {
+        res.status(201);
+        res.send("Missing Mobile Number Parameter");
+        return;
+    }
+    user.logout((i) =>{
+        if(i == 'OK'){
+            res.send("logout success");
+        }
+        else{
+            res.status(201);
+            res.send("logout error");
+        }
+    }, mobile)
+
+ })
+
+ 
+
 
 
 var server = app.listen(port, () => {
