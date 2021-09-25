@@ -30,13 +30,36 @@ exports.addProductsV2 = (productAttrs) =>{
 }
 
 
-exports.getProducts = (callback, shopID) =>{
+exports.getProducts = (callback, shopID, isLive, isverified) =>{	
+	var append = "as ss where (ss.islive =1";
+	if(isLive == 0){
+		append = "as ss where (ss.islive =0)";
+	}
+	else if(isLive == 1) {
+			append +=")";
+	}
+	else{
+		append += " or ss.islive = 0)";
+	} 
+
 	var query = "select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId,  a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy,  a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName, b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.PRODUCT_ID  in (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id =" + shopID+") and a.CATEGORY_ID = b.category_id ";
 	//var query = "select PRODUCT_ID as productId, NAME as name, MRP as mrp, SP as sp, CATEGORY_ID as categoryId, Quantity as quantity,  BRAND_ID as brandId, PRODUCT_SPECIFICATION as productSpecification, RETURN_POLICY as returnPolicy, VERIFIED as verified, IS_LIVE as isLive, PHOTO_LINK as photoLink from VD_PRODUCT where PRODUCT_ID in (SELECT PRODUCT_ID FROM VD_PRODUCT_DETAILS where shop_id = " + shopID + ")";
+	
 		if(shopID == -1 || shopID == '-1') {
 			query = "select a.PRODUCT_ID as productId, NAME as name, a.MRP as mrp, a.SP as sp , a.CATEGORY_ID as categoryId, a.Quantity as quantity,  a.BRAND_ID as brandId,  a.PRODUCT_SPECIFICATION as productSpecification, a.RETURN_POLICY as returnPolicy,  a.VERIFIED as verified, a.IS_LIVE as isLive, a.PHOTO_LINK as photoLink, b.CATEGORY_NAME as categoryName, b.SUB_CATEGORY as subCategory, b.VERTICAL as vertical from VD_PRODUCT as a inner join VD_CATEGORY as b on a.CATEGORY_ID = b.category_id ";
 
 		}
+		query = "select * from  (" + query+")" + append;
+
+
+		if(isverified == 1){
+			query += " and ss.verified = 1";
+		}
+		else if(isverified == 0){
+			query += " and ss.verified = 0";
+		}
+console.log(query);
+
 		DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
