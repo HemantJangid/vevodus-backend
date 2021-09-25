@@ -16,6 +16,24 @@ exports.authenticate = (callback, userDetails) =>{
 	});
 };
 
+
+  
+
+exports.authenticate2 = (callback, userDetails) =>{
+	var query = "select USER_ID as userId from VD_OTP where OTP = '" + userDetails.otp + "' and USER_ID in (select USER_ID from VD_USER_PROFILE where MOBILE = " +userDetails.mobile+")";
+	console.log(query);
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("ERROR");
+			console.log("Internl server error" + err);
+		}
+
+	});
+};
+
 exports.addNewUser = (userAttrs) => {
 	var query = "insert into VD_USER_PROFILE(NAME, MOBILE, EMAILADRESS, QOUTA)" 
 	query += " values ('" + userAttrs['shopOwnerName'] +"','" + userAttrs['mobile']+ "','" + userAttrs['emailAddress']+"',50); SELECT SCOPE_IDENTITY() as userid;";
@@ -89,6 +107,33 @@ exports.getUserInfo = (userId) => {
 exports.uniqueUser = (mobile) => {
 	var query = " select * from VD_USER_PROFILE where MOBILE = '" + mobile + "';";
 	return query;
+}
+
+
+exports.addOTP = (callback, mobile, otp) =>{
+	var query =   "  delete from VD_OTP where USER_ID in (select USER_ID from VD_USER_PROFILE where mobile = '" + mobile + "') ; insert into VD_OTP values((select USER_ID from VD_USER_PROFILE where mobile = '" + mobile + "'), '" + otp +"')";
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback("OK");
+		}
+		else{
+			callback("Internal Server Error" + err);
+			console.log("Internl server error in updating status for checkout" + err);
+		}
+	});
+}
+
+exports.logout = (callback, mobile) =>{
+	var query =   "delete from VD_OTP where USER_ID in (select USER_ID from VD_USER_PROFILE where mobile = '" + mobile +"')";
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback("OK");
+		}
+		else{
+			callback("Internal Server Error" + err);
+			console.log("Internl server error in updating status for checkout" + err);
+		}
+	});
 }
 
 
