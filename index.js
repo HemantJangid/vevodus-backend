@@ -29,7 +29,7 @@ const s3Client = new AWS.S3(DBUtil.getAWSConf);
 
 
 app.get('/', (req, res) => {
-    console.log(limit);
+    //console.log(limit);
   res.send('Hello World')
 })
 
@@ -90,7 +90,14 @@ app.get('/api/v1/product/getProducts' , (req,res) =>{
     }
     else {
         product.getProducts((i) =>{
-            res.send(i);
+            shopDetail.getShopDesc((ii) =>{
+                let responseConsturct = {};
+                responseConsturct['products'] = i;
+                responseConsturct['shop'] = ii;
+                res.send(responseConsturct);
+
+            }, userID);
+            //res.send(i);
         }, userID, isLive, req.query['verified'])
 
     }
