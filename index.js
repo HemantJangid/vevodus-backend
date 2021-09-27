@@ -912,7 +912,7 @@ app.post('/upload' , (req, res) =>{
 
  })
 
- app.post('/api/v1/verifyOTP', (req, res) =>{
+ app.post('/api/v1/verifyOTP',  (req, res) =>{
     let mobile = req.body.mobile;
     let otp = req.body.otp;
     let app = req.body.app
@@ -934,6 +934,9 @@ app.post('/upload' , (req, res) =>{
     if(app == undefined) {
         reqJSON['app'] = 'Admins';
     }
+    else{
+        reqJSON['app'] = app;
+    }
 
     user.authenticate2((i) => {
         console.log(i)
@@ -943,7 +946,10 @@ app.post('/upload' , (req, res) =>{
             if(length == 1) {
                     let userIDResp = i[0]['userId'];
                     console.log(userIDResp);
-                    if(reqJSON.app == 'SELLER') {
+
+                    user.userDetailsInfo((umesh) =>{
+
+                                            if(reqJSON.app == 'SELLER') {
                         shopDetail.getShopDetails((ii) =>{
 
                                 user.logout((i2) =>{
@@ -956,7 +962,7 @@ app.post('/upload' , (req, res) =>{
                                 }
                             }, mobile)
                                 let responseConsturct = {};
-                                responseConsturct['userDetail'] = i;
+                                responseConsturct['userDetail'] = umesh;
                                 responseConsturct['shopDetail'] = ii;
                                 res.status(200);
                                 res.send(responseConsturct);
@@ -967,6 +973,13 @@ app.post('/upload' , (req, res) =>{
                         res.status(200);
                         res.send(i);
                     }
+
+                    }, userIDResp);
+
+                   
+
+
+
 
             }
             else {
