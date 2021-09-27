@@ -42,6 +42,20 @@ exports.getAllShops = (callback, verified) => {
 	});
 }
 
+exports.getShopDesc = (callback, shopID) => {
+	var query = " select  shop_id as shopId, NAME as name, LAT as lat, LANG as lang, ADRESS as address,  BROADER_CATEGORY as broaderCategory, GST as gst, VERIFIED as verified, PHOTO_LINK as photoLink from VD_SHOP where SHOP_ID =" + shopID;	
+	console.log(query)
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+	});
+}
+
 exports.changeStatusShop = (callback, shopAttr) =>{
 	var query = "UPDATE VD_SHOP SET VERIFIED = "+ shopAttr.isVerified + " WHERE SHOP_ID in (" + shopAttr.shopIDs +")";
 	DBUtil.query(query, (err, recordsets) => {
