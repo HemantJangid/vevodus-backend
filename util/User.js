@@ -20,7 +20,7 @@ exports.authenticate = (callback, userDetails) =>{
   
 
 exports.authenticate2 = (callback, userDetails) =>{
-	var query = "select USER_ID as userId from VD_OTP where OTP = '" + userDetails.otp + "' and USER_ID in (select USER_ID from VD_USER_PROFILE where MOBILE = " +userDetails.mobile+")";
+	var query = "select USER_ID as userId from VD_OTP  where OTP = '" + userDetails.otp + "' and USER_ID in (select USER_ID from VD_USER_PROFILE where MOBILE = " +userDetails.mobile+")";
 	console.log(query);
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
@@ -33,6 +33,22 @@ exports.authenticate2 = (callback, userDetails) =>{
 
 	});
 };
+
+exports.userDetailsInfo = (callback, userid) =>{
+	var query = "select USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta from VD_USER_PROFILE where USER_ID=" +userid;
+	console.log(query);
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("ERROR");
+			console.log("Internl server error" + err);
+		}
+
+	});
+};
+
 
 exports.addNewUser = (userAttrs) => {
 	var query = "insert into VD_USER_PROFILE(NAME, MOBILE, EMAILADRESS, QOUTA)" 
