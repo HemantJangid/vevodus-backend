@@ -273,7 +273,7 @@ app.post('/api/v1/product/add',  async (req, res) =>{
             let addNewProductResponse = await sql.query(addNewProdcutQuery);
             let productID = addNewProductResponse['recordset'][0]['primaryKey'];
             // Sending Response with now.
-            res.send("Success with productID: " + addNewProductResponse);
+            //res.send("Success with productID: " + addNewProductResponse);
 
 
             // async call
@@ -284,9 +284,9 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 
 
             let productRequrestAttrs = {};
-            productRequrestAttrs['key'] = request.body.productSpecificationkey;
-            productRequrestAttrs['value'] = request.body.productSpecificationvalue;
-            if(request.body.productSpecificationkey != null) {
+            productRequrestAttrs['key'] = req.body.productSpecificationkey;
+            productRequrestAttrs['value'] = req.body.productSpecificationvalue;
+            if(req.body.productSpecificationkey != null) {
                 let arrayProductSpecificationKey = productRequrestAttrs['key'].split(',');
                 let arrayProductSpecificationValue = productRequrestAttrs['value'].split(',');
                 for(let k = 0 ; k <arrayProductSpecificationKey.length ; k ++) {
@@ -301,16 +301,17 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 
             //photo upload path
 
-            let photoLength = request.body.photoLength;
+            let photoLength = req.body.photoLength;
             if(photoLength != undefined) {
-                let fileKeys = Object.keys(req.files);
-                for(let photoIte = 0; photoIte < photolength ; photoIte++) {
-                    let photoKeyReq = fileKeys[photoIte];
-                    let photoFileName = request.files[photoKeyReq].name + Math.floor(+new Date() / 1000);
+                var files = getFilesObjects(req.files, 'photos');
+
+                for(let photoIte = 0; photoIte < files.length ; photoIte++) {
+                    let photoKeyReq = files[photoIte];
+                    let photoFileName = files[photoIte].name + Math.floor(+new Date() / 1000);
                     const s3 = new AWS.S3();
 
                     // Binary data base64
-                    let fileContent  = Buffer.from(req.files[photoKeyReq].data, 'binary');
+                    let fileContent  = Buffer.from(files[photoIte].data, 'binary');
 
                     // Setting up S3 upload parameters
                     const params = {
@@ -477,14 +478,17 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
         let photoLength = req.body.photoLength;
         if(photoLength != undefined) {
             if(req.files != undefined){
-                let fileKeys = Object.keys(req.files);
-                for(let photoIte = 0; photoIte < fileKeys.length ; photoIte++) {
-                    let photoKeyReq = fileKeys[photoIte];
-                    let photoFileName = request.files[photoKeyReq].name + Math.floor(+new Date() / 1000);
+
+                var files = getFilesObjects(req.files, 'photos');
+
+
+                for(let photoIte = 0; photoIte < files.length ; photoIte++) {
+                    let photoKeyReq = files[photoIte];
+                    let photoFileName = files[photoIte].name + Math.floor(+new Date() / 1000);
                     const s3 = new AWS.S3();
 
                     // Binary data base64
-                    let fileContent  = Buffer.from(req.files[photoKeyReq].data, 'binary');
+                    let fileContent  = Buffer.from(files[photoIte].data, 'binary');
 
                     // Setting up S3 upload parameters
                     const params = {
@@ -518,6 +522,7 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
                         }, reqJSON['shopID'], data.Location, 0);
                        
                     });
+
                 }
             }
             else{
@@ -624,16 +629,19 @@ app.post('/api/v1/user/signup', async (req, res) =>{
         let photoLength = req.body.photoLength;
         if(photoLength != undefined) {
             if(req.files != undefined){
-                let fileKeys = Object.keys(req.files);
-                for(let photoIte = 0; photoIte < fileKeys.length ; photoIte++) {
-                    let photoKeyReq = fileKeys[photoIte];
-                    let photoFileName = request.files[photoKeyReq].name + Math.floor(+new Date() / 1000);
-                    const s3 = new AWS.S3();
+                
+                var files = getFilesObjects(req.files, 'photos');
 
-                    // Binary data base64
-                    let fileContent  = Buffer.from(req.files[photoKeyReq].data, 'binary');
 
-                    // Setting up S3 upload parameters
+                for(let photoIte = 0; photoIte < files.length ; photoIte++) {
+                    let photoKeyReq = files[photoIte];
+                    let photoFileName = files[photoIte].name + Math.floor(+new Date() / 1000);
+                     const s3 = new AWS.S3();
+                    let fileContent  = Buffer.from(files[photoIte].data, 'binary');
+                    console.log(photoFileName);
+                    console.log(fileContent);
+
+                     // Setting up S3 upload parameters
                     const params = {
                         Bucket: 'vevodusbucket',
                         Key: photoFileName, // File name you want to save as in S3
@@ -805,16 +813,35 @@ app.get('/ap1/v1/getCheckoutDetails' , async (req, res) =>{
 
 app.post('/upload1' , (req, res) =>{
     console.log(req.files)
-    var files = [];
-    var fileKeys = Object.keys(req.files);
+    console.log(req.params);
+    console.log(req.query);
+    console.log(req.body);
+    var files = getFilesObjects(req.files, 'thefile');
 
-fileKeys.forEach(function(key) {
-    console.log(key);
-    files.push(req.files[key]);
-});
-console.log(files);
+
+                for(let photoIte = 0; photoIte < files.length ; photoIte++) {
+                    let photoKeyReq = files[photoIte];
+                    let photoFileName = files[photoIte].name + Math.floor(+new Date() / 1000);
+                    let fileContent  = Buffer.from(files[photoIte].data, 'binary');
+                    console.log(photoFileName);
+                    console.log(fileContent);
+                }
+
+res.send("OK");
 });
 
+
+getFilesObjects = (obj, key) =>{
+    let filePointer = [];
+    if(obj[key]!= undefined && obj[key].name != undefined){
+        filePointer.push(obj[key]);
+        return filePointer;
+    }
+    for(let photoIte = 0; photoIte < obj[key].length ; photoIte++) {
+        filePointer.push(obj[key][photoIte]);         
+    }
+    return filePointer;
+}
 
 
 app.post('/upload' , (req, res) =>{
@@ -883,7 +910,7 @@ app.post('/upload' , (req, res) =>{
         res.send("Missing Mobile Number Parameter");
         return;
     }
-    var otp = Math.floor(1000 + Math.random() * 9000);
+    var otp = "1111";Math.floor(1000 + Math.random() * 9000);
     var sns = new AWS.SNS();
 
     sns.publish({
@@ -970,16 +997,13 @@ app.post('/upload' , (req, res) =>{
 
                     }
                     else {
+                        let responseConsturct = {};
+                                responseConsturct['userDetail'] = umesh;
                         res.status(200);
-                        res.send(i);
+                        res.send(responseConsturct);
                     }
 
                     }, userIDResp);
-
-                   
-
-
-
 
             }
             else {
@@ -1014,6 +1038,10 @@ app.post('/upload' , (req, res) =>{
     }, mobile)
 
  })
+
+app.get('/api/v', (req, res)=>{
+    res.sendfile('connect.html');
+  })
 
  
 
