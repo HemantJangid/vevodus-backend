@@ -87,8 +87,8 @@ exports.addUserPhoto = (callback, productID, photoAdress, isverified) =>{
 	});
 };
 
-exports.addCheckout = (callback, userID, productID) =>{
-	var query = "INSERT INTO VD_USER_CHECKOUT (USER_ID, PRODUCT_ID, STATUS) VALUES (" + userID +","  +  productID + ",'N');";
+exports.addCheckout = (callback, userID, productID, quantity) =>{
+	var query = "INSERT INTO VD_USER_CHECKOUT (USER_ID, PRODUCT_ID, STATUS, Quantity) VALUES (" + userID +","  +  productID + ",'N', " + quantity +");";
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback("OK");
@@ -151,6 +151,24 @@ exports.logout = (callback, mobile) =>{
 		}
 	});
 }
+
+
+VD_USER_GIFT
+
+
+exports.addGift = (callback, userID, text) =>{
+	var query = "INSERT INTO VD_USER_GIFT (USER_ID, gift) VALUES (" + userID +" ,'" + text + "');";
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback("OK");
+		}
+		else{
+			callback("Internal Server Error" + err);
+			console.log("Internl in add Gift  error" + err);
+		}
+
+	});
+};
 
 
 
