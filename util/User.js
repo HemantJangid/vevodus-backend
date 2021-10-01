@@ -153,7 +153,6 @@ exports.logout = (callback, mobile) =>{
 }
 
 
-VD_USER_GIFT
 
 
 exports.addGift = (callback, userID, text) =>{
