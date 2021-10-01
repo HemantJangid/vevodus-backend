@@ -14,6 +14,7 @@ const brand = require('./util/Brand');
 const product = require('./util/Product');
 const categories = require('./util/Category');
 const location = require('./util/Location');
+const userCheckout = require('./util/UserCheckout');
 
 app.use(fileUpload());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -728,14 +729,15 @@ app.post('/api/v1/product/checkout', (req, res) =>{
    
     let userID = req.body.userId;
     let productId = req.body.productId;
-    if(userID != undefined && productId != undefined) {
+    let quantity = req.body.quantity;
+    if(userID != undefined && productId != undefined && quantity != undefined) {
         user.addCheckout((ii)=>{
             res.send(ii);
-        }, userID , productId);
+        }, userID , productId, quantity);
     }
     else{
         res.status(201);
-        res.send("Missing userId and productId parameters");
+        res.send("Missing userId and productId , quantity parameters");
     }
 });
 
@@ -750,6 +752,12 @@ app.post('/api/v1/checkout/statusChanged', (req, res) =>{
         }
         else if(status == 'DECLINE'){
             status = 'D'
+        }
+        else if(status == 'COMPLETE'){
+            status = 'C'
+        }
+        else if(status == 'C_DECLINE'){
+            status = 'X'
         }
         else{
             status = 'N';
@@ -1042,6 +1050,46 @@ app.post('/upload' , (req, res) =>{
 app.get('/api/v', (req, res)=>{
     res.sendfile('connect.html');
   })
+
+app.get('/api/v1/customer/history', (req, res)=>{
+    let userID = req.query.userId;
+    let historyType = req.query.historyType;
+    if(userID != undefined && historyType != undefined){
+        if(historyType == 'ACTIVE'){
+            userCheckout.getActiveUserCheckoutDetails((i)=>{
+                res.send(i);
+            }, userID);
+        }
+        else if(historyType == 'PAST'){
+            userCheckout.getPastUserCheckoutDetails((i)=>{
+                res.send(i);
+            }, userID);
+        }
+        else{
+            res.status(201);
+            res.send("unsupported history type.");
+        }
+    }
+    else{
+        res.status(201);
+        res.send("Missing either userId or historyType parameters.");
+    }
+})
+
+app.post('/api/v1/user/gify', (req, res) =>{
+   
+    let userID = req.body.userId;
+    let gift = req.body.gift;
+    if(userID != undefined && gift != undefined) {
+        user.addGift((ii)=>{
+            res.send(ii);
+        }, userID , gift);
+    }
+    else{
+        res.status(201);
+        res.send("Missing userId and gift parameters");
+    }
+});
 
  
 
