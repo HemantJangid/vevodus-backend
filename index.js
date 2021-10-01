@@ -1076,7 +1076,7 @@ app.get('/api/v1/customer/history', (req, res)=>{
     }
 })
 
-app.post('/api/v1/user/gify', (req, res) =>{
+app.post('/api/v1/user/gift', (req, res) =>{
    
     let userID = req.body.userId;
     let gift = req.body.gift;
