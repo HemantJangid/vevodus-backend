@@ -6,7 +6,7 @@ const express = require('express')
 const app = express()
 const port = 3000
 var bodyParser  = require("body-parser");
-require('dotenv').config();
+//require('dotenv').config();
 
 const shopDetail = require('./util/ShopController');
 const user = require('./util/User');
@@ -1111,7 +1111,7 @@ app.get('/api/v1/checkoutInfo', async(req, res)=>{
         let shopDetailResponse = await sql.query(shopDetailQuery);
 
         let response = {};
-        response['getCheckoutDetail'] = checkoutInfoResponse['recordset'][0];
+        response['checkoutDetails'] = checkoutInfoResponse['recordset'][0];
         response['shopInfo'] = shopDetailResponse['recordset'][0];
          res.send(response);
     }
