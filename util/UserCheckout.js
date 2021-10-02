@@ -27,3 +27,8 @@ exports.getPastUserCheckoutDetails = (callback, checkoutAttrs) =>{
 		}
 	});
 }
+
+exports.getParticularCheckout = (orderID) =>{
+	var query = "select p.NAME as name, p.MRP as mrp, p.SP as sp, p.CATEGORY_ID as categoryId, p.PRODUCT_SPECIFICATION as productSpecification ,p.PHOTO_LINK as photoLink ,CHECKOUT_ID as checkoutID, USER_ID as userId, p.PRODUCT_ID as productId, STATUS as status, ud.Quantity as quantity, Date_ORDERED as dateOrdered  from VD_PRODUCT as p inner join VD_USER_CHECKOUT as ud on p.PRODUCT_ID = ud.PRODUCT_ID and ud.CHECKOUT_ID = " +orderID + "  order by ud.Date_ORDERED;";
+	return query;
+}
