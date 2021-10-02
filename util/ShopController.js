@@ -137,6 +137,11 @@ exports.changeStatusCheckout = (callback, checkoutID, status) =>{
 	});
 }
 
+exports.getShopDetailByProductID = (productId) =>{
+	var query = "select * from VD_SHOP where shop_Id= (select shop_id from VD_PRODUCT_DETAILS where product_ID=" +productId +")";
+	return query;
+}
+
 
 
 
