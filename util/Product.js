@@ -29,6 +29,12 @@ exports.addProductsV2 = (productAttrs) =>{
 	return query;
 }
 
+exports.updateProductsV2 = (productAttrs) =>{
+	var query = "update VD_PRODUCT set NAME = '"+ productAttrs['productName'] +"' , MRP=" + productId['MRP'] +", SP = " + productId['SP'] +", CATEGORY_ID =" + productAttrs['categoryID'] + ", Quantity = " +  productAttrs['quantity']  +", BRAND_ID= " +  productAttrs['brandID'] +" , PRODUCT_SPECIFICATION='" + productAttrs['productSpecification'] +"', RETURN_POLICY = " + productAttrs['returnPolicy'] + ", VERIFIED = " + productAttrs['verified']  +", IS_LIVE = " + productAttrs['islive'] +" where PRODUCT_ID= " + productAttrs['productId'];
+	console.log(query);
+	return query;
+}
+
 
 exports.getProducts = (callback, shopID, isLive, isverified) =>{	
 	var append = "as ss where (ss.islive =1";
