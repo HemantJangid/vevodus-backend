@@ -1091,6 +1091,35 @@ app.post('/api/v1/user/gift', (req, res) =>{
     }
 });
 
+app.get('/api/v1/checkoutInfo', async(req, res)=>{
+    let checkoutID = req.query.checkoutId;
+    if(checkoutID != undefined){
+        let checkoutInfoQuery = userCheckout.getParticularCheckout(checkoutID);
+        await sql.connect(DBUtil.syncConfig)
+        let checkoutInfoResponse = await sql.query(checkoutInfoQuery);
+        console.log(checkoutInfoResponse);
+        if(checkoutInfoResponse['recordset'][0] == undefined){
+            res.status(201);
+            res.send("Invalid checkoutid");
+            return;
+        }
+        let productid = checkoutInfoResponse['recordset'][0]['productId'];
+
+
+        let shopDetailQuery = shopDetail.getShopDetailByProductID(productid);
+        await sql.connect(DBUtil.syncConfig)
+        let shopDetailResponse = await sql.query(shopDetailQuery);
+
+        let response = {};
+        response['getCheckoutDetail'] = checkoutInfoResponse['recordset'];
+        response['shopInfo'] = shopDetailResponse['recordset'];
+         res.send(response);
+    }
+    else{
+        res.status(201);
+        res.send("Missing checkoutID parameters");
+    }
+})
  
 
 
