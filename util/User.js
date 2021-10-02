@@ -89,6 +89,7 @@ exports.addUserPhoto = (callback, productID, photoAdress, isverified) =>{
 
 exports.addCheckout = (callback, userID, productID, quantity) =>{
 	var query = "INSERT INTO VD_USER_CHECKOUT (USER_ID, PRODUCT_ID, STATUS, Quantity) VALUES (" + userID +","  +  productID + ",'N', " + quantity +");";
+	console.log(query);
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback("OK");
