@@ -187,6 +187,104 @@ app.get('/api/v1/product/getProductAttrs', (req, res) =>{
     }, productid);
 });
 
+app.post('/api/v1/product/update',  async (req, res) =>{
+    let productId = req.body.productId;
+
+    let attributeMissing = {};
+    
+    if((req.body.categoryId ==  undefined || req.body.categoryId == -1) && req.body.categoryName == undefined) {
+        res.status(201);
+        res.send("Missing cateGoryName Parameter.");
+        return;
+    }
+    
+
+    attributeMissing['productName'] =req.body.productName;
+    attributeMissing['MRP'] =req.body.mrp;
+    attributeMissing['SP'] =req.body.sp;
+    attributeMissing['quantity'] =req.body.quantity;
+    attributeMissing['productSpecification'] =req.body.productSpecification;
+    attributeMissing['returnPolicy'] =req.body.returnPolicy;
+
+    if(attributeMissing['returnPolicy'] == undefined){
+        attributeMissing['returnPolicy'] = 1;
+    }
+
+        // iterate for missong
+    for(var k in attributeMissing){
+        if(attributeMissing[k] == undefined) {
+            res.status(201);
+            res.send("Missing Attributes = " + k);
+            return;
+        }
+    }
+
+    if(productId == null) {
+        res.status(201);
+        res.send("Missing productId ID.");
+    }
+    else{
+        try{
+            let categoryID = req.body.categoryId;
+            let brandID = 1;
+            if(categoryID == null) {
+                let categoryAttrs = {};
+                categoryAttrs['categoryName'] = req.body.categoryName;
+                categoryAttrs['subCategory'] = req.body.subCategory ;
+                categoryAttrs['vertical'] = req.body.vertical;
+                if(req.body.subCategory == undefined) {
+                    categoryAttrs['subCategory'] = 'empty';
+                }
+                if(req.body.vertical == undefined) {
+                    categoryAttrs['vertical'] = 'empty';
+                }
+                
+                let addNewCategoryQuery = categories.addNewCategoryv2(categoryAttrs);
+                await sql.connect(DBUtil.syncConfig)
+                let categoriesResponse = await sql.query(addNewCategoryQuery);
+                categoryID = categoriesResponse['recordset'][0]['primaryKey'];
+            }
+            if(brandID == null) {
+                let otherBrandName = req.body.brandName;
+                let addNewBrandQuery = brand.addNewBrand2(otherBrandName);
+                await sql.connect(DBUtil.syncConfig)
+                let brandResponse = await sql.query(addNewBrandQuery);
+                brandID = recordsets['recordset'][0]['primaryKey'];
+            }
+
+            let productAttrs = {};
+            productAttrs['productId'] = productId;
+            productAttrs['productName'] = req.body.productName;
+            productAttrs['MRP'] = req.body.mrp;
+            productAttrs['SP'] = req.body.sp;
+            productAttrs['categoryID'] = categoryID;
+            productAttrs['quantity'] = req.body.quantity;
+            productAttrs['brandID'] = brandID;
+            productAttrs['productSpecification'] = req.body.productSpecification;
+            productAttrs['returnPolicy'] = attributeMissing['returnPolicy'];
+            productAttrs['verified'] = 0;
+            productAttrs['islive'] = 0;
+            let addNewProdcutQuery = product.updateProductsV2(productAttrs);
+            await sql.connect(DBUtil.syncConfig)
+            let addNewProductResponse = await sql.query(addNewProdcutQuery);
+            let productID = productId;
+            // Sending Response with now.
+            //res.send("Success with productID: " + addNewProductResponse);
+
+
+
+
+            res.send("OK");
+
+        }
+        catch(e) {
+            res.status(201);
+            res.send("Error in adding product" + e)
+
+        }
+    }
+});
+
 app.post('/api/v1/product/add',  async (req, res) =>{
     let shopID = req.body.shopId;
 
