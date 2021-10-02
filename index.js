@@ -918,7 +918,7 @@ app.post('/upload' , (req, res) =>{
         res.send("Missing Mobile Number Parameter");
         return;
     }
-    var otp = "1111";//Math.floor(1000 + Math.random() * 9000);
+    var otp = Math.floor(1000 + Math.random() * 9000);
     var sns = new AWS.SNS();
 
     sns.publish({
