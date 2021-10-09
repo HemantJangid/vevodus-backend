@@ -597,7 +597,7 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
                         ACL:'public-read'
                     };
 
-                    console.log("Iterating AWS post request with post request : " + productID);
+                    console.log("Iterating AWS post request with post request : ");
                     console.log("AWS FileName" + photoFileName);
 
                     // Uploading files to the bucket
@@ -748,7 +748,7 @@ app.post('/api/v1/user/signup', async (req, res) =>{
                         ACL:'public-read'
                     };
 
-                    console.log("Iterating AWS post request with post request : " + productID);
+                    console.log("Iterating AWS post request with post request : ");
                     console.log("AWS FileName" + photoFileName);
 
                     // Uploading files to the bucket
