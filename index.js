@@ -409,7 +409,7 @@ app.post('/api/v1/product/add',  async (req, res) =>{
 
                 for(let photoIte = 0; photoIte < files.length ; photoIte++) {
                     let photoKeyReq = files[photoIte];
-                    let photoFileName = files[photoIte].name + Math.floor(+new Date() / 1000);
+                    let photoFileName = Math.floor(+new Date() / 1000) + files[photoIte].name ;
                     const s3 = new AWS.S3();
 
                     // Binary data base64
@@ -587,7 +587,7 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
 
                 for(let photoIte = 0; photoIte < files.length ; photoIte++) {
                     let photoKeyReq = files[photoIte];
-                    let photoFileName = files[photoIte].name + Math.floor(+new Date() / 1000);
+                    let photoFileName = Math.floor(+new Date() / 1000) + files[photoIte].name;
                     const s3 = new AWS.S3();
 
                     // Binary data base64
@@ -738,7 +738,7 @@ app.post('/api/v1/user/signup', async (req, res) =>{
 
                 for(let photoIte = 0; photoIte < files.length ; photoIte++) {
                     let photoKeyReq = files[photoIte];
-                    let photoFileName = files[photoIte].name + Math.floor(+new Date() / 1000);
+                    let photoFileName = Math.floor(+new Date() / 1000) + files[photoIte].name
                      const s3 = new AWS.S3();
                     let fileContent  = Buffer.from(files[photoIte].data, 'binary');
                     console.log(photoFileName);
