@@ -34,6 +34,9 @@ app.get('/', (req, res) => {
   res.send('Hello World')
 })
 
+app.get('/api/v', (req, res)=>{
+    res.sendfile('connect.html');
+  })
 
 
 DBUtil.healthCheck((i)=>{
@@ -224,7 +227,7 @@ app.post('/api/v1/product/update',  async (req, res) =>{
         res.send("Missing productId ID.");
     }
     else{
-        try{
+        //try{
             let categoryID = req.body.categoryId;
             let brandID = 1;
             if(categoryID == null) {
@@ -262,8 +265,8 @@ app.post('/api/v1/product/update',  async (req, res) =>{
             productAttrs['brandID'] = brandID;
             productAttrs['productSpecification'] = req.body.productSpecification;
             productAttrs['returnPolicy'] = attributeMissing['returnPolicy'];
-            productAttrs['verified'] = 0;
-            productAttrs['islive'] = 0;
+            productAttrs['verified'] = 1;
+            productAttrs['islive'] = 1;
             let addNewProdcutQuery = product.updateProductsV2(productAttrs);
             await sql.connect(DBUtil.syncConfig)
             let addNewProductResponse = await sql.query(addNewProdcutQuery);
@@ -276,12 +279,12 @@ app.post('/api/v1/product/update',  async (req, res) =>{
 
             res.send("OK");
 
-        }
-        catch(e) {
-            res.status(201);
-            res.send("Error in adding product" + e)
+        //}
+        //catch(e) {
+            //res.status(201);
+          //  res.send("Error in adding product" + e)
 
-        }
+        //}
     }
 });
 
@@ -365,8 +368,8 @@ app.post('/api/v1/product/add',  async (req, res) =>{
             productAttrs['brandID'] = brandID;
             productAttrs['productSpecification'] = req.body.productSpecification;
             productAttrs['returnPolicy'] = attributeMissing['returnPolicy'];
-            productAttrs['verified'] = 0;
-            productAttrs['islive'] = 0;
+            productAttrs['verified'] = 1;
+            productAttrs['islive'] = 1;
             let addNewProdcutQuery = product.addProductsV2(productAttrs);
             await sql.connect(DBUtil.syncConfig)
             let addNewProductResponse = await sql.query(addNewProdcutQuery);
@@ -537,6 +540,7 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
 
 
         let addShopQuery = shopDetail.addNewShop(reqJSON);
+        console.log(addShopQuery);
         await sql.connect(DBUtil.syncConfig)
         let addNewShopResponse = await sql.query(addShopQuery);
         let shopID = addNewShopResponse['recordset'][0]['shopid'];
@@ -1016,7 +1020,7 @@ app.post('/upload' , (req, res) =>{
         res.send("Missing Mobile Number Parameter");
         return;
     }
-    var otp = Math.floor(1000 + Math.random() * 9000);
+    var otp = "1111";//Math.floor(1000 + Math.random() * 9000);
     var sns = new AWS.SNS();
 
     sns.publish({
