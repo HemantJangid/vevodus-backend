@@ -86,7 +86,7 @@ exports.getPhotosLink = (callback, productid) =>{
 
 exports.addNewShop = (shopAttrs) =>{
 	var query = "insert into VD_SHOP(NAME, LAT, LANG, ADRESS, BROADER_CATEGORY, GST, VERIFIED, PHOTO_LINK)"
-	query += " values('" + shopAttrs['shopName'] + "', '" + shopAttrs['lat'] +"','" + shopAttrs['lang'] +"', '" + shopAttrs['address'] +"','" + shopAttrs['broaderCategory'] + "','" + shopAttrs['GST']+"',0,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Shop.svg/1200px-Shop.svg.png'); SELECT SCOPE_IDENTITY() as shopid;";
+	query += " values('" + shopAttrs['shopName'] + "', '" + shopAttrs['lat'] +"','" + shopAttrs['lang'] +"', '" + shopAttrs['address'] +"','" + shopAttrs['broaderCategory'] + "','" + shopAttrs['GST']+"',1,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Shop.svg/1200px-Shop.svg.png'); SELECT SCOPE_IDENTITY() as shopid;";
 	return query;
 }
 
