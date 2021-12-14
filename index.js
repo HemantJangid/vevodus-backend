@@ -146,17 +146,28 @@ app.post('/api/v1/user/validate', (req, res) =>{
                     console.log(userIDResp);
                     if(userDetails.app == 'SELLER') {
                         shopDetail.getShopDetails((ii) =>{
-                                let responseConsturct = {};
-                                responseConsturct['userDetail'] = i;
-                                responseConsturct['shopDetail'] = ii;
-                                res.status(200);
-                                res.send(responseConsturct);
+                                user.getUserCity((iii)=>{
+                                    let responseConsturct = {};
+                                    responseConsturct['userDetail'] = i;
+                                    responseConsturct['shopDetail'] = ii;
+                                    responseConsturct['locationDetail'] = iii;
+                                    res.status(200);
+                                    res.send(responseConsturct);
+
+                                }, userIDResp);
                         }, userIDResp)
 
                     }
                     else {
-                        res.status(200);
-                        res.send(i);
+                            user.getUserCity((iiii)=>{
+                                    let responseConsturct = {};
+                                    responseConsturct['userDetail'] = i;
+                                    responseConsturct['locationDetail'] = iiii;
+                                    res.status(200);
+                                    res.send(responseConsturct);
+
+                                }, userIDResp);
+
                     }
 
             }
