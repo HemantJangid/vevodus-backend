@@ -150,7 +150,7 @@ app.post('/api/v1/user/validate', (req, res) =>{
                                     let responseConsturct = {};
                                     responseConsturct['userDetail'] = i;
                                     responseConsturct['shopDetail'] = ii;
-                                    responseConsturct['locationDetail'] = iii;
+                                    i[0]['city'] = iii;
                                     res.status(200);
                                     res.send(responseConsturct);
 
@@ -160,11 +160,9 @@ app.post('/api/v1/user/validate', (req, res) =>{
                     }
                     else {
                             user.getUserCity((iiii)=>{
-                                    let responseConsturct = {};
-                                    responseConsturct['userDetail'] = i;
-                                    responseConsturct['locationDetail'] = iiii;
+                                    i[0]['city'] = iiii;
                                     res.status(200);
-                                    res.send(responseConsturct);
+                                    res.send(i);
 
                                 }, userIDResp);
 
