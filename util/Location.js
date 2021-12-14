@@ -17,3 +17,17 @@ exports.getAllPinCodes = (callback) =>{
 		}
 	});
 }
+
+
+exports.getAllCities = (callback) =>{
+	var query =  'select CITY_ID as cityId, NAME as name , STATE_ID as stateId, status as status from VD_CITIES where status = 1';
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+	});
+}
