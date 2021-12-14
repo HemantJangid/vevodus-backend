@@ -49,6 +49,21 @@ exports.userDetailsInfo = (callback, userid) =>{
 	});
 };
 
+exports.getUserCity = (callback, userId) =>{
+	var query =   "select * from VD_CITIES where CITY_ID = (select city_id from VD_LOCATION where LOCATION_ID = ( select LOCATION_ID from VD_USER_ADRESS where USER_ID ="  + userId +"))";
+	console.log(query);
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("ERROR");
+			console.log("Internl server error" + err);
+		}
+
+	});
+}
+
 
 exports.addNewUser = (userAttrs) => {
 	var query = "insert into VD_USER_PROFILE(NAME, MOBILE, EMAILADRESS, QOUTA)" 
