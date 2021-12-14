@@ -17,15 +17,15 @@ exports.getShopDetails = (callback, userID) =>{
 
 
 exports.getAllShops = (callback, verified, cityName) => {
-	var append = "where (verified =1";
+	var append = "where (verified =1)";
 	if(verified == 0){
-		append = "where (verified =0";
+		append = "where (verified =0)";
 	}
 	else if(verified == 1) {
 
 	}
 	else{
-		append += " or verified = 0)";
+		append = "  where (verified =1 or verified = 0)";
 	} 
 	var query = " select  shop_id as shopId, NAME as name, LAT as lat, LANG as lang, ADRESS as address,  BROADER_CATEGORY as broaderCategory, GST as gst, VERIFIED as verified, PHOTO_LINK as photoLink from VD_SHOP";
 	
