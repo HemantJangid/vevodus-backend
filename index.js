@@ -65,7 +65,7 @@ app.get('/api/v1/shop/getDetails', (req, res) =>{
 app.get('/api/v1/getAllShops', (req, res) =>{
     shopDetail.getAllShops((i) =>{
             res.send(i);
-    }, req.query['verified']);
+    }, req.query['verified'], req.query['cityName']);
 })
 
 app.post('/api/v1/shop/statusChanged', (req, res) => {
