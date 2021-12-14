@@ -826,6 +826,12 @@ app.get('/api/v1/pincode/getAllPinCodes', (req, res) =>{
     })
 });
 
+app.get('/api/v1/getAllCities', (req, res) =>{
+    location.getAllCities((i)=>{
+        res.send(i);
+    })
+});
+
 
 app.post('/api/v1/product/checkout', (req, res) =>{
    
