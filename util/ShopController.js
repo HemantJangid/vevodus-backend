@@ -44,8 +44,11 @@ exports.getAllShops = (callback, verified, cityName) => {
 	});
 }
 
-exports.getShopDesc = (callback, shopID) => {
+exports.getShopDesc = (callback, shopID, cityName) => {
 	var query = " select  shop_id as shopId, NAME as name, LAT as lat, LANG as lang, ADRESS as address,  BROADER_CATEGORY as broaderCategory, GST as gst, VERIFIED as verified, PHOTO_LINK as photoLink from VD_SHOP where SHOP_ID =" + shopID;	
+	if(cityName) {
+		query += " and  ADRESS like '%, "+cityName+"%'";
+	}
 	console.log(query)
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
