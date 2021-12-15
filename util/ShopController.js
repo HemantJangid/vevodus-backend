@@ -148,5 +148,24 @@ exports.getShopDetailByProductID = (productId) =>{
 }
 
 
+exports.getSearchShopDesc = (callback,  cityName, text) => {
+	var query = " select  shop_id as shopId, NAME as name, LAT as lat, LANG as lang, ADRESS as address,  BROADER_CATEGORY as broaderCategory, GST as gst, VERIFIED as verified, PHOTO_LINK as photoLink from VD_SHOP";	
+	if(cityName) {
+		query += " where  ADRESS like '%, "+cityName+"%'";
+	}
+	query += " and  name like '%"+text+"%'";
+	console.log(query)
+	DBUtil.query(query, (err, recordsets) => {
+		if(err == null) {
+				callback(recordsets['recordset']);
+		}
+		else{
+			callback("Internal Server Error");
+			console.log("Internl server error" + err);
+		}
+	});
+}
+
+
 
 
