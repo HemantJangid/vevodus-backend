@@ -108,6 +108,30 @@ app.get('/api/v1/product/getProducts' , (req,res) =>{
 })
 
 
+
+app.get('/api/v1/search' , (req,res) =>{
+    var cityName = req.query['cityName'];
+    var text = req.query['text'];
+    if(cityName  == null || text == null) {
+        res.status(201);
+        res.send("Missing cityName or text query.");
+    }
+    else {
+        product.getSearchProducts((i) =>{
+            shopDetail.getSearchShopDesc((ii) =>{
+                let responseConsturct = {};
+                responseConsturct['products'] = i;
+                responseConsturct['shop'] = ii;
+                res.send(responseConsturct);
+
+            },  req.query['cityName'], text);
+            //res.send(i);
+        }, -1, 1, req.query['verified'], req.query['cityName'], text)
+
+    }
+})
+
+
 app.post('/api/v1/product/statusChanged', (req, res) => {
     var shopAttrs = {
         productids : req.body.productIds,
