@@ -36,7 +36,7 @@ exports.updateProductsV2 = (productAttrs) =>{
 }
 
 
-exports.getProducts = (callback, shopID, isLive, isverified) =>{	
+exports.getProducts = (callback, shopID, isLive, isverified, cityName) =>{	
 	var append = "as ss where (ss.islive =1";
 	if(isLive == 0){
 		append = "as ss where (ss.islive =0)";
@@ -66,6 +66,9 @@ exports.getProducts = (callback, shopID, isLive, isverified) =>{
 		}
 console.log(query);
 
+		if(cityName) {
+			query += " and ss.productid in ( select PRODUCT_ID from VD_PRODUCT_DETAILS where SHOP_ID in (select SHOP_ID from VD_SHOP where ADRESS like '%, "+cityName+"%'))";
+		}
 		DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
 				callback(recordsets['recordset']);
