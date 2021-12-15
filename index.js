@@ -100,9 +100,9 @@ app.get('/api/v1/product/getProducts' , (req,res) =>{
                 responseConsturct['shop'] = ii;
                 res.send(responseConsturct);
 
-            }, userID);
+            }, userID, req.query['cityName']);
             //res.send(i);
-        }, userID, isLive, req.query['verified'])
+        }, userID, isLive, req.query['verified'], req.query['cityName'])
 
     }
 })
