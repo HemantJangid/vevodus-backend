@@ -36,6 +36,7 @@ exports.authenticate2 = (callback, userDetails) =>{
 
 exports.userDetailsInfo = (callback, userid) =>{
 	var query = "select USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta from VD_USER_PROFILE where USER_ID=" +userid;
+	query = "select vp.USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta , va.ADRESS as address from VD_USER_PROFILE as vp inner join VD_USER_ADRESS as va on vp.USER_ID=" +userid;
 	console.log(query);
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
@@ -102,8 +103,8 @@ exports.addUserPhoto = (callback, productID, photoAdress, isverified) =>{
 	});
 };
 
-exports.addCheckout = (callback, userID, productID, quantity) =>{
-	var query = "INSERT INTO VD_USER_CHECKOUT (USER_ID, PRODUCT_ID, STATUS, Quantity) VALUES (" + userID +","  +  productID + ",'N', " + quantity +");";
+exports.addCheckout = (callback, userID, productID, quantity, address, lat, lang) =>{
+	var query = "INSERT INTO VD_USER_CHECKOUT (USER_ID, PRODUCT_ID, STATUS, Quantity, ADDRESS, LAT, LANG) VALUES (" + userID +","  +  productID + ",'N', " + quantity +", '"+ address+"' , '" + lat+"', '"+lang+"');";
 	console.log(query);
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
