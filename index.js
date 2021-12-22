@@ -871,10 +871,13 @@ app.post('/api/v1/product/checkout', (req, res) =>{
     let userID = req.body.userId;
     let productId = req.body.productId;
     let quantity = req.body.quantity;
+    let address = req.body.address || "default";
+    let lat = req.body.lat || "default";
+    let lang = req.body.lang || "default";
     if(userID != undefined && productId != undefined && quantity != undefined) {
         user.addCheckout((ii)=>{
             res.send(ii);
-        }, userID , productId, quantity);
+        }, userID , productId, quantity, address, lat, lang);
     }
     else{
         res.status(201);
