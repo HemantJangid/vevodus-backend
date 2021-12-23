@@ -36,7 +36,7 @@ exports.authenticate2 = (callback, userDetails) =>{
 
 exports.userDetailsInfo = (callback, userid) =>{
 	var query = "select USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta from VD_USER_PROFILE where USER_ID=" +userid;
-	query = "select vp.USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta , va.ADRESS as address from VD_USER_PROFILE as vp inner join VD_USER_ADRESS as va on vp.USER_ID=" +userid;
+	query = "select vp.USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta , va.ADRESS as address from VD_USER_PROFILE as vp inner join VD_USER_ADRESS as va on vp.USER_ID = va.USER_ID and vp.USER_ID=" +userid;
 	console.log(query);
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
