@@ -699,6 +699,8 @@ app.post('/api/v1/user/signup', async (req, res) =>{
     let emailAddress = req.body.emailAddress;
     let address = req.body.address;
     let password = req.body.password;
+     let lang = req.body.lang;
+    let lat = req.body.lat;
     
 
     let reqJSON = {
@@ -709,7 +711,9 @@ app.post('/api/v1/user/signup', async (req, res) =>{
         'role' : 'BUYER',
         'nearBYAddress' : 'dummy',
         'locationID' : 3,
-        'password' : password
+        'password' : password,
+        'lat' : lat,
+        'lang' : lang
     };
 
     // iterate for missong
