@@ -36,7 +36,7 @@ exports.authenticate2 = (callback, userDetails) =>{
 
 exports.userDetailsInfo = (callback, userid) =>{
 	var query = "select USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta from VD_USER_PROFILE where USER_ID=" +userid;
-	query = "select vp.USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta , va.ADRESS as address from VD_USER_PROFILE as vp inner join VD_USER_ADRESS as va on vp.USER_ID = va.USER_ID and vp.USER_ID=" +userid;
+	query = "select vp.USER_ID as userId, NAME as name, mobile as mobile, EMAILADRESS as emailAddress, QOUTA as qouta , va.ADRESS as address , va.lat as lat, va.lang as lang from VD_USER_PROFILE as vp inner join VD_USER_ADRESS as va on vp.USER_ID = va.USER_ID and vp.USER_ID=" +userid;
 	console.log(query);
 	DBUtil.query(query, (err, recordsets) => {
 		if(err == null) {
@@ -73,8 +73,8 @@ exports.addNewUser = (userAttrs) => {
 }
 
 exports.addUserAddress = (userAttrs) => {
-	var query = "insert into VD_USER_ADRESS(USER_ID, ADRESS, NEAR_BY_LANDMARK, LOCATION_ID, DEFAULT_ADRESS) " 
-	query += " values (" + userAttrs['userID'] +",'" + userAttrs['address']+ "','" + userAttrs['nearBYAddress']+"', "+ userAttrs['locationID'] +" , " + 1 +");";
+	var query = "insert into VD_USER_ADRESS(USER_ID, ADRESS, NEAR_BY_LANDMARK, LOCATION_ID, DEFAULT_ADRESS, LAT, LANG) " 
+	query += " values (" + userAttrs['userID'] +",'" + userAttrs['address']+ "','" + userAttrs['nearBYAddress']+"', "+ userAttrs['locationID'] +" , " + 1 +", '"+ userAttrs['lat']+"' , '"+ userAttrs['lang']+"');";
 	return query;
 }
 
