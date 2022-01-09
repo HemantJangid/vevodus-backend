@@ -532,6 +532,9 @@ app.post('/api/v1/shop/signup', async (req, res) =>{
     let address = req.body.address;
     let broaderCategory = req.body.broaderCategory;
     let password = req.body.password;
+
+    if(shopName)
+        shopName = shopName.replace("'","''");
     
 
     let reqJSON = {
