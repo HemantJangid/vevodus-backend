@@ -112,11 +112,15 @@ app.get('/api/v1/product/getProducts' , (req,res) =>{
 app.get('/api/v1/search' , (req,res) =>{
     var cityName = req.query['cityName'];
     var text = req.query['text'];
-    if(cityName  == null || text == null) {
+    if(text == null) {
         res.status(201);
-        res.send("Missing cityName or text query.");
+        res.send("Missing text query.");
+        return
     }
-    else {
+    if(cityName == null || cityName == undefined ) {
+        cityName = '%';
+    }
+    
         product.getSearchProducts((i) =>{
             shopDetail.getSearchShopDesc((ii) =>{
                 let responseConsturct = {};
@@ -124,11 +128,11 @@ app.get('/api/v1/search' , (req,res) =>{
                 responseConsturct['shop'] = ii;
                 res.send(responseConsturct);
 
-            },  req.query['cityName'], text);
+            },  cityName, text);
             //res.send(i);
-        }, -1, 1, req.query['verified'], req.query['cityName'], text)
+        }, -1, 1, req.query['verified'], cityName, text)
 
-    }
+    
 })
 
 
